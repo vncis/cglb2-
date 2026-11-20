@@ -132,6 +132,9 @@ h2{font-size:24px;margin:26px 0 10px}
 .hidetext p{filter:blur(6px);user-select:none;pointer-events:none}.hidetext .trbtn,.hidetext .btns{filter:none}
 .showtxt{margin:4px 0 8px}
 .relisten{background:var(--soft);border-radius:14px;padding:8px 12px;margin-bottom:12px}.relisten summary{cursor:pointer;font-weight:600;min-height:40px;display:flex;align-items:center}.relisten p{font-size:17px;line-height:1.6}
+.rulecard{background:var(--card);border:3px solid var(--line);border-radius:18px;padding:12px 14px;margin-bottom:12px}.rulecard h3{margin:0 0 8px}
+.rrow{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:2px dashed var(--line)}.rrow:first-of-type{border-top:0}
+.rex{font-size:clamp(18px,3.6vw,21px);font-weight:600}.rexp{color:var(--muted);font-size:16px}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
 .pop{animation:pop .35s}
@@ -1856,6 +1859,233 @@ const STORY = [
 ];
 LESSONS.forEach((L,i)=>{ if(STORY[i]) L.parts[0]={n:"Story time",icon:"📖",steps:STORY[i]} });
 
+// Grammar lessons (teacher explains + scored practice), following the Language focus boxes
+// of Cambridge Primary English Learner's Book 2. Extra step type:
+// ["rule", title, [[example/label, explanation], ...], vietnamese, img]
+const GRAMMAR = [
+{u:"1", title:"Friends and families", icon:"👨‍👩‍👧", color:"#ff8a3d", parts:[
+ {n:"Commas in a list", icon:"✏️", steps:[
+  ["say","Today's grammar: commas in a list. A comma looks like this: , It tells us to take a short pause when we read.","Ngữ pháp hôm nay: dấu phẩy trong danh sách. Dấu phẩy báo cho ta ngắt nghỉ ngắn khi đọc.","✏️"],
+  ["rule","Commas in a list",[["stickers, badges, pencils and feathers","Put a comma between the things."],["… pencils and feathers","Put 'and' before the last thing – no comma there."],["I collect stones, shells and stickers.","Start with a capital letter, end with a full stop."]],"Đặt dấu phẩy giữa các thứ trong danh sách. Trước thứ cuối cùng dùng 'and', không dùng dấu phẩy.","📝"],
+  ["mc","Which list is correct?",["I collect stones, shells and stickers.","I collect stones shells, and stickers.","I collect, stones, shells, stickers."],"Commas between items, 'and' before the last.","Phẩy giữa các thứ, 'and' trước thứ cuối.","🪨🐚"],
+  ["mc","Where does 'and' go? I need a towel, a hat ___ sunglasses.",["and","but","so"],"'and' goes before the last item.","'and' đứng trước thứ cuối.","🏖️"],
+  ["mc","Which list is correct?",["We ate rice, fish, carrots and apples.","We ate rice fish carrots and apples.","We ate rice, fish, carrots, and, apples."],"Commas + and.","Dấu phẩy + and.","🍚🐟"],
+  ["fill","Add the missing word: red, blue ___ green",["and"],"red, blue and green.","đỏ, xanh dương và xanh lá.","🎨"],
+  ["mc","How many commas? 'I like cats, dogs, birds and fish.'",["2","3","4"],"cats, dogs, birds and fish → 2 commas.","Có 2 dấu phẩy.","🐱🐶"],
+  ["order","Put the list in order.","I collect stickers, badges and pencils","Commas between, 'and' before the last.","Tớ sưu tầm hình dán, huy hiệu và bút chì."]
+ ]},
+ {n:"-ing and -ed verbs", icon:"⏰", steps:[
+  ["say","Verbs are doing words. We add -ing for things happening NOW, and -ed for things that happened in the PAST.","Động từ là từ chỉ hành động. Thêm -ing cho việc đang xảy ra, -ed cho việc đã xảy ra.","⏰"],
+  ["rule","Verb endings",[["He is checking.","now → is + verb-ing"],["He checked.","past → verb + -ed"],["She is jumping. / She jumped.","jump → jumping / jumped"],["fly → He is flying. / He flew.","Be careful! Some verbs are irregular."]],"Bây giờ: is + -ing. Quá khứ: thêm -ed. Có động từ bất quy tắc như fly → flew.","🕊️"],
+  ["mc","Now: Huey ___ on the swing.",["is swinging","swinged","swing"],"Now → is + -ing.","Đang xảy ra → is + -ing.","🛝"],
+  ["mc","Past: Julian ___ into the sand pile.",["jumped","is jumping","jump"],"Past → -ed.","Quá khứ → -ed.","🏖️"],
+  ["fill","Past: Father ___ the pudding. (stir) – double the r!",["stirred"],"stir → stirred.","stir → stirred (đã khuấy).","🥄"],
+  ["fill","Past: Mum ___ . (sigh)",["sighed"],"sigh → sighed.","sigh → sighed (đã thở dài).","😮‍💨"],
+  ["mc","Irregular: fly → he ___",["flew","flyed","flied"],"fly → flew.","fly → flew.","🪂"],
+  ["mc","Irregular: is → it ___",["was","ised","were"],"is → was (one thing).","is → was.","⏪"],
+  ["mc","Irregular: have → I ___",["had","haved","has"],"have → had.","have → had.","🎒"],
+  ["mc","Which sentence is about NOW?",["The pudding is bubbling.","The pudding bubbled.","The pudding was ready."],"is + -ing = now.","is + -ing = bây giờ.","🍮"]
+ ]},
+ {n:"Sentences & speech marks", icon:"💬", steps:[
+  ["rule","End of a sentence",[["It's time for bed.","A statement ends with a full stop ."],["Did you hear what I said?","A question ends with a question mark ?"],["Get up!","A command tells you what to do."]],"Câu kể kết thúc bằng dấu chấm. Câu hỏi bằng dấu hỏi. Câu mệnh lệnh bảo ai đó làm gì.","❓"],
+  ["rule","Speech marks “ ”",[["“I don't like peas,” said Daisy.","Speech marks go around the words someone says."],["“Eat your peas,” said Mum.","The comma goes inside the speech marks."]],"Dấu ngoặc kép bao quanh lời nói. Dấu phẩy nằm bên trong ngoặc kép.","💬"],
+  ["mc","Which needs a question mark?",["Where are my keys","Close the door","I like peas"],"It asks something.","Câu này là câu hỏi.","🔑"],
+  ["mc","Which is a command?",["Eat your peas!","Daisy ate no peas.","Do you like peas?"],"A command tells someone what to do.","Câu mệnh lệnh.","🫛"],
+  ["mc","Which is correct?",["“It's so dark,” said Ben.","It's so dark, “said Ben.”","“It's so dark, said Ben.”"],"Only the spoken words go inside.","Chỉ lời nói nằm trong ngoặc.","🌑"],
+  ["mc","Choose the correct end: 'What are you going to make'",["?",".","!"],"It is a question.","Đây là câu hỏi.","❓"],
+  ["mc","Quantifiers: Daisy ate ___ peas. (zero)",["no","all","lots of"],"no = none at all.","no = không chút nào.","🙅"],
+  ["mc","Quantifiers: Mum made ___ promises. (very many)",["lots of","no","any"],"lots of = very many.","lots of = rất nhiều.","🎁"],
+  ["fill","Add the end mark: Is everybody okay",["?"],"A question → ?","Câu hỏi → dấu ?","❓"]
+ ]}
+]},
+{u:"2", title:"Badges", icon:"🏅", color:"#3d8bff", parts:[
+ {n:"Commands & order words", icon:"✋", steps:[
+  ["rule","Instructions",[["How to Blow Bubbles","A heading often begins: How to…"],["Pour some water into a bowl.","Begin with a command verb: Put, Pour, Add, Mix, Wash."],["First, Next, Then, After, Finally","Linking adverbs tell the order."],["1, 2, 3, 4","Numbers can show the order too."]],"Bài hướng dẫn: tiêu đề 'How to…', bắt đầu bằng động từ mệnh lệnh, dùng từ chỉ thứ tự hoặc số.","📋"],
+  ["mc","Which word is a command verb?",["Pour","Bowl","Happy"],"Pour some water.","Pour = đổ.","🫗"],
+  ["mc","Which sentence is an instruction?",["Add some oil.","The oil is yellow.","I like oil."],"It begins with a command verb.","Bắt đầu bằng động từ mệnh lệnh.","🫙"],
+  ["fill","___ your hands when you have finished. (clean with water and soap)",["wash"],"Wash your hands!","Hãy rửa tay!","🧼"],
+  ["order","Put the linking adverbs in order.","First Next Then Finally","First → Next → Then → Finally","Đầu tiên → Tiếp theo → Sau đó → Cuối cùng"],
+  ["mc","Which word can be replaced with the number 1?",["First","Finally","Next"],"First = 1.","First = số 1.","1️⃣"],
+  ["mc","Choose the connective: Bubbles will not form ___ you don't add soap.",["if","and","or"],"if = only when.","if = nếu.","🫧"],
+  ["mc","Choose the connective: The bubbles form ___ the soap makes the water stretchy.",["because","or","if"],"because gives the reason.","because = bởi vì.","🧴"],
+  ["mc","Choose: Put the straw in the water ___ blow.",["and","because","if"],"and joins two actions.","and nối hai hành động.","🥤"]
+ ]},
+ {n:"Plurals", icon:"📚", steps:[
+  ["rule","Making plurals",[["1 book → 2 books","Usually add -s."],["1 quiz → 10 quizzes","Some words add -es."],["1 story → 3 stories","consonant + y → -ies."],["1 boy → 2 boys","vowel + y → just add -s."],["1 child → 4 children, 1 life → lots of lives","Irregular plurals!"]],"Số nhiều: thường thêm -s; có từ thêm -es; phụ âm + y → -ies; có từ bất quy tắc như child → children.","📚"],
+  ["fill","1 badge, 2 ___",["badges"],"Add -s.","Thêm -s.","🏅"],
+  ["fill","1 box, 3 ___",["boxes"],"x → add -es.","Tận cùng x → thêm -es.","📦"],
+  ["fill","1 city, 2 ___",["cities"],"consonant + y → ies.","phụ âm + y → ies.","🏙️"],
+  ["mc","1 boy, 2 ___",["boys","boies","boyes"],"vowel + y → add -s.","nguyên âm + y → thêm -s.","👦👦"],
+  ["mc","1 child, 4 ___",["children","childs","childes"],"Irregular!","Bất quy tắc!","🧒"],
+  ["mc","1 life, lots of ___",["lives","lifes","lifs"],"f → ves.","f → ves.","💗"],
+  ["mc","1 woman, 3 ___",["women","womans","womens"],"Irregular!","Bất quy tắc!","👩"],
+  ["mc","1 superhero, 5 ___",["superheroes","superheros","superherose"],"hero → heroes.","hero → heroes.","🦸"]
+ ]}
+]},
+{u:"3", title:"All about sounds", icon:"🔊", color:"#7c3aed", parts:[
+ {n:"Digraphs & trigraphs", icon:"🔤", steps:[
+  ["rule","Digraphs and trigraphs",[["sh, ck, ch, th, ng","A digraph: two letters, one sound."],["shop, socks, chips","sh – ck – ch"],["igh, tch","A trigraph: three letters, one sound."],["night, watch","n-igh-t, wa-tch"]],"Digraph: 2 chữ cái tạo 1 âm. Trigraph: 3 chữ cái tạo 1 âm.","🔤"],
+  ["mc","Which word has the digraph sh?",["shell","chips","lock"],"sh-ell.","shell có sh.","🐚"],
+  ["mc","Which word has the digraph ck?",["clock","chop","shop"],"clo-ck.","clock có ck.","⏰"],
+  ["mc","Which word has the digraph ch?",["chopsticks","ship","socks"],"ch-opsticks.","chopsticks có ch.","🥢"],
+  ["mc","Which word has the trigraph igh?",["night","nest","name"],"n-igh-t.","night có igh.","🌙"],
+  ["fill","Add the digraph: so__s 🧦",["ck"],"socks.","socks.","🧦"],
+  ["fill","Add the digraph: __ip 🚢",["sh"],"ship.","ship.","🚢"],
+  ["fill","Add the digraph: __ips 🍟",["ch"],"chips.","chips.","🍟"]
+ ]},
+ {n:"for and with", icon:"👟", steps:[
+  ["rule","for and with",[["Boots for muddy places.","for = the purpose (what it is used for)"],["Shoes for ballet.","for = what you need it for"],["Shoes with grown-up laces.","with = an extra detail"],["Shoes with funny faces.","with = what it has"]],"for = dùng cho mục đích gì. with = có thêm chi tiết gì.","👟"],
+  ["mc","Shoes ___ driving.",["for","with"],"Purpose → for.","Mục đích → for.","🚗"],
+  ["mc","Shoes ___ buckles.",["with","for"],"Detail → with.","Chi tiết → with.","👞"],
+  ["mc","A coat ___ the rain.",["for","with"],"Purpose → for.","Mục đích → for.","🧥"],
+  ["mc","A hat ___ a feather.",["with","for"],"Detail → with.","Chi tiết → with.","👒"],
+  ["mc","Shoes ___ diving.",["for","with"],"Purpose → for.","Mục đích → for.","🤿"],
+  ["mc","Shoes ___ bows.",["with","for"],"Detail → with.","Chi tiết → with.","🎀"],
+  ["mc","Which sentence is correct?",["Boots for muddy places.","Boots with muddy places.","Boots of muddy places."],"for = what they are used for.","for = dùng cho.","🥾"]
+ ]}
+]},
+{u:"4", title:"Long, long ago", icon:"🐯", color:"#16a34a", parts:[
+ {n:"Adjectives & noun phrases", icon:"🎨", steps:[
+  ["rule","A sentence grows",[["the monster","a noun"],["the monster's hair","a noun phrase"],["The monster's hair is thick.","add an adjective"],["The monster's hair is thick like a bear's.","compare it"],["The monster's hair is thick and white like snow.","add more description!"]],"Thêm tính từ vào danh từ làm câu hay hơn: tóc quái vật → dày → dày như lông gấu → dày và trắng như tuyết.","👹"],
+  ["mc","Which word is an adjective?",["sly","mouse deer","jungle"],"sly describes Sang Kancil.","sly (ranh mãnh) là tính từ.","🦌"],
+  ["mc","Which word is an adjective?",["hungry","Tiger","eyes"],"Tiger's hungry eyes.","hungry (đói) là tính từ.","🐯"],
+  ["mc","Which is a noun phrase?",["a muddy puddle","quickly","ran"],"article + adjective + noun.","mạo từ + tính từ + danh từ.","🟤"],
+  ["mc","Choose the best adjective: Tiger bared his ___ teeth.",["sharp","soft","sleepy"],"Sharp teeth!","Răng sắc nhọn!","🦷"],
+  ["mc","His eyes are like … (compare)",["burning fires","a sofa","a spoon"],"Comparing makes it vivid.","So sánh làm câu sinh động.","🔥"],
+  ["order","Grow the sentence: put the words in order.","The rock was huge, hard and solid","Commas between adjectives in a list.","Tảng đá to, cứng và chắc."]
+ ]},
+ {n:"Connectives", icon:"🔗", steps:[
+  ["rule","Connectives join sentences",[["and","adds more: …a cave and in the cave lived a monster."],["but","a surprise: Ramay trusted him, but the woodcutter tricked him."],["so","a result: Ramay was tired so he asked to stay."],["because","a reason: Ramay was amazed because the monster was afraid."],["or / if / when","a choice / a condition / a time"]],"Từ nối: and (và), but (nhưng), so (nên), because (vì), or (hoặc), if (nếu), when (khi).","🔗"],
+  ["mc","The stick chased the woodcutter ___ he tried to steal it.",["when","or","so"],"when = at the time.","when = khi.","🪄"],
+  ["mc","Ramay asked for gold, ___ nothing happened.",["but","because","or"],"A surprise → but.","Bất ngờ → but.","💰"],
+  ["mc","Ramay realised he was tricked, ___ he ran back to the monster.",["so","or","if"],"A result → so.","Kết quả → so.","🏃"],
+  ["mc","“Shall I ask for gold ___ shall I ask for a feast?”",["or","so","because"],"A choice → or.","Lựa chọn → or.","🍗"],
+  ["mc","Ramay made wishes for the monster ___ he had been kind.",["because","but","or"],"A reason → because.","Lý do → because.","💚"],
+  ["mc","The pudding is for your mother, ___ leave it alone!",["so","or","when"],"A result → so.","Kết quả → so.","🍮"]
+ ]},
+ {n:"Verb endings: -s, -ing, -ed", icon:"⏰", steps:[
+  ["rule","Present and past",[["The woodcutter tricks Ramay.","present: + s"],["The woodcutter was tricking Ramay.","past (going on): was + -ing"],["The woodcutter tricked Ramay.","past (finished): + ed"],["blow → blew, see → saw, say → said","irregular past verbs"]],"Hiện tại thêm -s; quá khứ tiếp diễn was + -ing; quá khứ thêm -ed; có động từ bất quy tắc.","⏳"],
+  ["fill","The monster live___ in a mountain cave. (present)",["s","lives"],"lives.","lives = sống.","🏔️"],
+  ["fill","Ramay was feel___ very pleased.",["ing","feeling"],"was feeling.","was feeling = đang cảm thấy.","😊"],
+  ["fill","The woodcutter swap___ the stick. (past)",["ped","swapped"],"swap → swapped (double p).","swapped = đã tráo.","🪵"],
+  ["mc","Yoshi ___ the rich man's beautiful home. (love, past)",["loved","loves","loving"],"love → loved.","loved = đã yêu thích.","🏠"],
+  ["mc","A cool wind ___. (blow, past)",["blew","blowed","blows"],"blow → blew.","blew = đã thổi.","🌬️"],
+  ["mc","“Nothing can be stronger than me,” he ___. (boast, past)",["boasted","boasts","boast"],"boast → boasted.","boasted = đã khoe.","🪨"],
+  ["mc","Yoshi ___ up his tools. (pick, past)",["picked","picks","picking"],"pick → picked.","picked = đã nhặt.","⛏️"]
+ ]}
+]},
+{u:"5", title:"Computers and robots", icon:"🤖", color:"#0891b2", parts:[
+ {n:"Nouns, adjectives & prefixes", icon:"🏷️", steps:[
+  ["rule","Nouns and adjectives",[["computer, phone, toy, game","A noun names something."],["new, clever, good, fast","An adjective describes a noun."],["a clever toy / some new phones","1. adjective BEFORE the noun"],["The toy is clever. The phones were new.","2. adjective AFTER is, are, was, were"]],"Danh từ gọi tên sự vật; tính từ mô tả. Tính từ đứng trước danh từ, hoặc sau is/are/was/were.","🧸"],
+  ["mc","Which word is a noun?",["robot","clever","new"],"robot names a thing.","robot là danh từ.","🤖"],
+  ["mc","Which word is an adjective?",["fast","computer","game"],"fast describes.","fast là tính từ.","⚡"],
+  ["mc","Rewrite 'my new computer' with 'is':",["My computer is new.","My is new computer.","New is my computer."],"adjective after 'is'.","tính từ đứng sau is.","💻"],
+  ["rule","Prefixes un- and dis-",[["happy → unhappy","un- = not"],["kind → unkind, safe → unsafe",""],["agree → disagree","dis- = the opposite"],["like → dislike, appear → disappear",""]],"Tiền tố un- và dis- tạo nghĩa ngược lại.","🔄"],
+  ["fill","un + safe = ___",["unsafe"],"unsafe = not safe.","unsafe = không an toàn.","⚠️"],
+  ["fill","dis + appear = ___",["disappear"],"disappear = go away.","disappear = biến mất.","🫥"],
+  ["mc","The opposite of 'happy' is …",["unhappy","dishappy","happyless"],"un + happy.","unhappy.","😞"],
+  ["mc","Some, most, all: ___ drones are controlled by a computer. (every one)",["All","Some","No"],"All = every one.","All = tất cả.","🛸"]
+ ]},
+ {n:"Present tense: -s or not?", icon:"🤖", steps:[
+  ["rule","Present tense endings",[["The robot moves.","ONE (he, she, it) → add -s"],["The robots move.","MORE THAN ONE (they) → no -s"],["The robot talks. / The robots talk.",""],["Juan walked home. → Juan always walks home.","always / every day → present tense"]],"Hiện tại: một người/vật → thêm -s; nhiều → không thêm -s.","🤖🤖"],
+  ["mc","The robot ___ people. (help)",["helps","help"],"One → -s.","Một → thêm -s.","🤖"],
+  ["mc","The robots ___ people information. (give)",["give","gives"],"More than one → no -s.","Nhiều → không -s.","🤖🤖"],
+  ["mc","Pepper ___ people where to go. (tell)",["tells","tell"],"Pepper = one robot.","Pepper là một rô-bốt.","🗺️"],
+  ["mc","Drones ___ cameras. (carry)",["carry","carries"],"Many drones → no -s.","Nhiều drone → không -s.","📷"],
+  ["mc","A drone ___ like a helicopter. (fly)",["flies","fly"],"fly → flies (y → ies).","fly → flies.","🚁"],
+  ["fill","Liang always ___ his drone safely. (fly)",["flies"],"Liang = one person → flies.","Liang → flies.","🧒"],
+  ["mc","Time words: Which tells about the FUTURE?",["Soon","At first","Yesterday"],"Soon I will enter drone races.","Soon = sắp tới.","🔮"]
+ ]}
+]},
+{u:"6", title:"On a journey", icon:"🧭", color:"#e11d48", parts:[
+ {n:"Compound words & rhyme", icon:"🔗", steps:[
+  ["rule","Compound words",[["box + land = boxland","two small words → one big word"],["foot + print = footprint",""],["sun + shine = sunshine",""],["snow + man = snowman",""]],"Từ ghép: hai từ nhỏ ghép thành một từ lớn.","🔗"],
+  ["fill","rain + bow = ___",["rainbow"],"rainbow.","cầu vồng.","🌈"],
+  ["fill","bed + room = ___",["bedroom"],"bedroom.","phòng ngủ.","🛏️"],
+  ["mc","Which is a compound word?",["seashell","shell","sea"],"sea + shell.","sea + shell.","🐚"],
+  ["rule","Rhyme",[["pop – stop – shop","Rhyming words end with the same sound."],["walk – talk",""],["see – tea","Different spelling, same sound!"]],"Từ vần có âm cuối giống nhau, có khi viết khác nhau.","🎵"],
+  ["mc","Which word rhymes with 'pop'?",["shop","walk","road"],"pop – shop.","pop vần shop.","🛍️"],
+  ["mc","Which word rhymes with 'see'?",["tea","sit","sun"],"see – tea.","see vần tea.","🍵"],
+  ["mc","Which word rhymes with 'hill'?",["still","hall","hole"],"hill – still (The River).","hill vần still.","⛰️"]
+ ]},
+ {n:"Sound words & ! marks", icon:"💥", steps:[
+  ["rule","Exclamation marks",[["Bounce! Bang! Splash!","A sound word often has an exclamation mark !"],["Look out!","! shows surprise or a strong feeling."],["Here comes a poem in a hurry!",""]],"Từ tượng thanh thường có dấu chấm than. Dấu ! thể hiện ngạc nhiên hoặc cảm xúc mạnh.","❗"],
+  ["mc","Which sound word goes with coconuts falling?",["Bounce!","Tweet!","Swish!"],"Bounce! As the coconuts fall.","Bộp! Dừa rơi.","🥥"],
+  ["mc","Which sound word goes with waves?",["Swish!","Bang!","Pull!"],"Swish! As the waves overlap.","Xoạt! Sóng vỗ.","🌊"],
+  ["mc","Which sentence needs an exclamation mark?",["Look out","The river is long","I have a box"],"A warning → !","Cảnh báo → !","⚠️"],
+  ["mc","Repetition: which line repeats in Busy Day?",["got to pop","the river's a winder","goose, goose, goose"],"can't stop, got to pop!","Lặp lại 'got to pop'.","🎈"]
+ ]}
+]},
+{u:"7", title:"Stories by well-known authors", icon:"📚", color:"#ca8a04", parts:[
+ {n:"Homophones & time words", icon:"🔊", steps:[
+  ["rule","Homophones: same sound, different spelling",[["sore – saw","sore knee / I saw a bird"],["fair – fare","That's not fair! / bus fare"],["break – brake","break time / the car's brake"],["threw – through","threw the ball / through the door"],["caught – court","caught the ball / tennis court"]],"Từ đồng âm: đọc giống nhau, viết và nghĩa khác nhau.","🔊"],
+  ["mc","He rubbed his ___ knee.",["sore","saw"],"sore = hurting.","sore = đau.","🦵"],
+  ["mc","Beno ___ the ball to Omar.",["threw","through"],"threw = past of throw.","threw = đã ném.","⚾"],
+  ["mc","It was ___ time at school.",["break","brake"],"break time = playtime.","break = giờ ra chơi.","🔔"],
+  ["mc","Pelo ___ the ball.",["caught","court"],"caught = past of catch.","caught = đã bắt.","🧤"],
+  ["rule","Time words and phrases",[["First, Then, Next, After that, Finally","order of events"],["Before school, At break time, The next day","when it happened"],["On that very day, he was back at his sewing machine.","A sentence can begin with WHEN."]],"Từ chỉ thời gian giúp kể đúng thứ tự.","⏰"],
+  ["mc","Which is a time phrase?",["The next day","a red ball","very happy"],"It tells when.","Cho biết khi nào.","📅"],
+  ["mc","___, the bell rang for the end of break.",["Then","Ball","Sore"],"Then = after that.","Then = sau đó.","🔔"]
+ ]},
+ {n:"Word endings: -y, -ful, -er, -est", icon:"📏", steps:[
+  ["rule","-y and -ful make adjectives",[["joy + ful = joyful","noun + ful → adjective"],["colour + ful = colourful",""],["dust + y = dusty","noun + y → adjective"],["sun + y = sunny (double n!)",""]],"Thêm -ful hoặc -y vào danh từ để tạo tính từ.","🌈"],
+  ["fill","help + ful = ___",["helpful"],"helpful.","helpful = hay giúp đỡ.","🤝"],
+  ["fill","dust + y = ___",["dusty"],"dusty – the grey dusty village.","dusty = đầy bụi.","🌫️"],
+  ["mc","care + ful = ?",["careful","carefull","carful"],"Only one l!","Chỉ một chữ l!","⚠️"],
+  ["rule","-er and -est compare",[["small → smaller → smallest","-er compares two things; -est compares with all"],["The smaller village / the smallest village",""],["big → bigger → biggest","double the last letter after a short vowel"],["nice → nicer → nicest","words ending in e: add -r, -st"]],"-er so sánh hai thứ; -est so sánh với tất cả.","📏"],
+  ["mc","An albatross is the world's ___ seabird. (big)",["biggest","bigger","bigest"],"Compared with ALL → -est.","So với tất cả → -est.","🕊️"],
+  ["mc","My cat is ___ than my rabbit. (old)",["older","oldest","more old"],"Compare two → -er.","So sánh hai → -er.","🐱"],
+  ["fill","bright, brighter, ___",["brightest"],"brightest.","sáng nhất.","☀️"],
+  ["mc","fast, ___, fastest",["faster","fastter","more fast"],"faster.","nhanh hơn.","🐆"]
+ ]}
+]},
+{u:"8", title:"Underwater life", icon:"🐠", color:"#0e7490", parts:[
+ {n:"Pronouns & verb agreement", icon:"👉", steps:[
+  ["rule","Pronouns",[["I, you, he, she, it, we, they","A pronoun takes the place of a noun."],["The whale is big. It eats krill.","the whale → it"],["The family want to see whales, so they go on a boat.","the family → they"],["“Look at the whale jump!” says the boy. He is happy.","the boy → he"]],"Đại từ thay cho danh từ: I, you, he, she, it, we, they.","👉"],
+  ["mc","The sea is very cold. ___ is cold.",["It","They","He"],"the sea → it.","biển → it.","🌊"],
+  ["mc","The fish swim fast. ___ have fins.",["They","It","She"],"fish (many) → they.","nhiều cá → they.","🐟"],
+  ["mc","The mother turtle digs a hole. ___ lays her eggs.",["She","He","They"],"the mother turtle → she.","rùa mẹ → she.","🐢"],
+  ["rule","Verb agreement",[["A fish breathes underwater.","one → verb + s"],["Fish have gills. Whales have blowholes.","many → no s"],["A whale needs to breathe air.",""],["Some whales have teeth. The sperm whale is the biggest.","have / has, are / is"]],"Một con → động từ thêm s (has, is). Nhiều con → không thêm s (have, are).","🐋"],
+  ["mc","Whales ___ to breathe air.",["need","needs"],"many → no s.","nhiều → không s.","🐳"],
+  ["mc","A whale ___ a blowhole.",["has","have"],"one → has.","một → has.","🐋"],
+  ["mc","Some whales ___ teeth.",["have","has"],"many → have.","nhiều → have.","🦷"],
+  ["mc","The biggest toothed whale ___ the sperm whale.",["is","are"],"one → is.","một → is.","🐋"]
+ ]},
+ {n:"Sentence types & present tense", icon:"💬", steps:[
+  ["rule","Three kinds of sentences",[["Lots of people like to eat fish.","Statement: begins with a noun or pronoun. Ends with ."],["Do you like fish? Which fish do you like?","Question: begins with a verb or wh- word. Ends with ?"],["Eat your fish. First, eat your fish.","Command: begins with a bossy verb or a time word."]],"Câu kể, câu hỏi, câu mệnh lệnh.","💬"],
+  ["mc","'Seals spend most of each day hunting.' is a …",["statement","question","command"],"It tells a fact.","Câu kể.","🦭"],
+  ["mc","'Which animals eat fish?' is a …",["question","statement","command"],"wh- word + ?","Câu hỏi.","❓"],
+  ["mc","'Catch that fish!' is a …",["command","question","statement"],"Bossy verb!","Câu mệnh lệnh.","🎣"],
+  ["mc","Change to a question: 'Polar bears catch fish.'",["Do polar bears catch fish?","Polar bears catch fish?","Catch fish polar bears."],"Begin with Do…?","Bắt đầu bằng Do…?","🐻‍❄️"],
+  ["rule","Present tense",[["The shark is chasing the fish.","happening now: is + -ing"],["Sharks chase fish.","always happens: simple present"],["Turtles swim to the beach. / Turtles are swimming to the beach.",""]],"Hiện tại: đang xảy ra (is + -ing) hoặc luôn xảy ra.","🦈"],
+  ["mc","Now: The turtle ___ a hole in the sand.",["is digging","dug","digs yesterday"],"Now → is + -ing.","Đang → is + -ing.","🐢"],
+  ["mc","Always: Turtles ___ jellyfish.",["eat","ate","eating"],"Always → simple present.","Luôn → hiện tại đơn.","🪼"]
+ ]}
+]},
+{u:"9", title:"Creatures everywhere", icon:"🐘", color:"#059669", parts:[
+ {n:"Past tense in poems", icon:"⏪", steps:[
+  ["rule","Present and past",[["creep → crept, sleep → slept","irregular"],["hoot → hooted, holler → hollered","regular: + ed"],["“Creep,” said the mother. So they crept, then they slept.","Over in the Jungle"]],"Quá khứ: có từ thêm -ed (hooted), có từ bất quy tắc (crept, slept).","🦥"],
+  ["mc","creep → ?",["crept","creeped","crepped"],"creep → crept.","crept.","🦥"],
+  ["mc","sleep → ?",["slept","sleeped","slep"],"sleep → slept.","slept.","😴"],
+  ["fill","hoot → ___",["hooted"],"hoot + ed.","hooted.","🐒"],
+  ["mc","swim → ?",["swam","swimmed","swum"],"swim → swam.","swam.","🏊"],
+  ["mc","hide → ?",["hid","hided","hidden"],"hide → hid.","hid.","🙈"],
+  ["mc","escape → ?",["escaped","escapeed","escape"],"Ends in e → add d.","Thêm d.","🏃"],
+  ["mc","Which verb is in the past tense?",["chased","chases","chasing"],"-ed → past.","-ed → quá khứ.","🐊"]
+ ]},
+ {n:"Adverbs (-ly) & split digraphs", icon:"🐊", steps:[
+  ["rule","Adverbs ending in -ly",[["cheerful → cheerfully","An adverb tells HOW something is done."],["neat → neatly, gentle → gently",""],["He ran quickly. She snored noisily.","happy → happily, noisy → noisily (y → i)"]],"Trạng từ đuôi -ly cho biết hành động diễn ra thế nào.","🏃"],
+  ["fill","slow → ___",["slowly"],"slow + ly.","slowly = chậm rãi.","🐢"],
+  ["fill","happy → ___",["happily"],"y → i + ly.","happily = vui vẻ.","😊"],
+  ["mc","How cheerfully he seems to grin! Which word is the adverb?",["cheerfully","grin","seems"],"-ly adverb.","Trạng từ đuôi -ly.","😁"],
+  ["rule","Split digraph: magic e",[["tap → tape","The e at the end makes the vowel long."],["bit → bite, hop → hope, tub → tube",""],["crocodile, smile, Nile","i_e"]],"Chữ e ở cuối làm nguyên âm đọc dài: tap → tape.","🔤"],
+  ["mc","bit + e = ?",["bite","bitt","beat"],"i_e.","bite.","🦷"],
+  ["mc","tub + e = ?",["tube","tubb","tab"],"u_e.","tube.","🧪"],
+  ["mc","Which word has a split digraph?",["smile","small","smell"],"sm-i-l-e.","smile có i_e.","😁"]
+ ]}
+]}
+];
+
 </script>
 <script>
 {
@@ -1991,14 +2221,16 @@ function home(){
  try{speechSynthesis.cancel()}catch(e){}
  const card = u => `<button class="unit" data-go="${u.id}"><span class="ic" style="background:${u.color}22">${u.icon}</span><span><b>${u.n}${u.secs?" · Workbook":""}</b><span class="t">${esc(u.title)}</span><span class="stars" aria-label="best score">${stars(best[u.id])}${best[u.id]!=null?` <span style="color:var(--muted)">${best[u.id]}/10</span>`:""}</span></span></button>`;
  app.innerHTML = `<header><span class="logo">📘</span><div style="flex:1"><h1>English 2 – Learn &amp; Review</h1><p class="sub">Learn with Miss Anna, then review! <span class="vn">· Học bài cùng cô giáo, rồi làm bài ôn tập.</span></p></div><button class="ghost vbtn" data-voice>🗣️ <span>Giọng đọc</span></button></header>
- <h2>🎓 Học cùng cô giáo <span class="vn">· Lessons with Miss Anna (Learner's Book 2)</span></h2><div class="grid">${LESSONS.map((L,k)=>`<button class="unit" data-les="${k}"><span class="ic" style="background:${L.color}22">${L.icon}</span><span><b>Unit ${L.u} · Lesson</b><span class="t">${esc(L.title)}</span><span class="stars">${L.parts.map((P,p)=>P.icon+lesStars(k,p)).join("  ")}</span></span></button>`).join("")}</div>
+ <h2>🎓 Học cùng cô giáo <span class="vn">· Lessons with Miss Anna (Learner's Book 2)</span></h2><div class="grid">${LESSONS.map((L,k)=>`<button class="unit" data-les="${k}"><span class="ic" style="background:${L.color}22">${L.icon}</span><span><b>Unit ${L.u} · Lesson</b><span class="t">${esc(L.title)}</span><span class="stars">${L.parts.map((P,p)=>P.icon+lesStars(k,p,"")).join("  ")}</span></span></button>`).join("")}</div>
+ <h2>📐 Ngữ pháp cùng cô giáo <span class="vn">· Grammar lessons + practice (Unit 1 → 9)</span></h2><div class="grid">${GRAMMAR.map((G,k)=>`<button class="unit" data-gram="${k}"><span class="ic" style="background:${G.color}22">📐</span><span><b>Unit ${G.u} · Grammar</b><span class="t">${G.parts.map(p=>esc(p.n)).join(" · ")}</span><span class="stars">${G.parts.map((P,p)=>P.icon+lesStars(k,p,"g")).join("  ")}</span></span></button>`).join("")}</div>
  <h2>Learner's Book · Review <span class="vn">· Ôn tập sau khi học (Cambridge Primary English 2)</span></h2><div class="grid">${UNITS.map(card).join("")}</div>
  <h2>Workbook revision <span class="vn">· Ôn tập theo Workbook (giống đề Revision)</span></h2><div class="grid">${WB.map(card).join("")}</div>
  <h2>Check your progress</h2><div class="grid">${REVIEWS.map(card).join("")}
  <button class="unit" data-go="words"><span class="ic" style="background:#db277722">🔊</span><span><b>Game</b><span class="t">Picture words – listen and tap</span><span class="stars">${stars(best.words)}${best.words!=null?` <span style="color:var(--muted)">${best.words}/10</span>`:""}</span></span></button></div>
  <p class="vn" style="margin-top:22px">Mẹo: bấm 🔊 để nghe câu hỏi. Điểm cao nhất của mỗi bài được lưu trên trình duyệt này.</p>`;
  app.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>start(b.dataset.go));
- app.querySelectorAll("[data-les]").forEach(b=>b.onclick=()=>lesUnit(+b.dataset.les));
+ app.querySelectorAll("[data-les]").forEach(b=>b.onclick=()=>lesUnit(+b.dataset.les,false));
+ app.querySelectorAll("[data-gram]").forEach(b=>b.onclick=()=>lesUnit(+b.dataset.gram,true));
  window.scrollTo(0,0)}
 
 function start(id, retry){
@@ -2136,7 +2368,7 @@ window.__cur=()=>S;
 /* ---------- teacher lessons ---------- */
 let LP={}; try{LP=JSON.parse(localStorage.getItem("cge2-lessons")||"{}")}catch(e){}
 const saveLP=()=>{try{localStorage.setItem("cge2-lessons",JSON.stringify(LP))}catch(e){}};
-function lesStars(k,p){ const v=LP[k+"-"+p]; return v==null?"○":["☆","★","★★","★★★"][v] }
+function lesStars(k,p,pre=""){ const v=LP[pre+k+"-"+p]; return v==null?"○":["☆","★","★★","★★★"][v] }
 const TEACHER=`<svg viewBox="0 0 120 120" class="tsvg" aria-hidden="true"><circle cx="60" cy="60" r="58" fill="#ffe6c7"/>
  <path d="M22 62c0-30 16-46 38-46s38 16 38 46c-6-14-14-22-38-24-24 2-32 10-38 24z" fill="#5b3a29"/><circle cx="60" cy="16" r="13" fill="#5b3a29"/>
  <ellipse cx="60" cy="68" rx="30" ry="33" fill="#ffd2a8"/><circle cx="48" cy="64" r="4.5" fill="#14213d"/><circle cx="72" cy="64" r="4.5" fill="#14213d"/>
@@ -2145,14 +2377,14 @@ const TEACHER=`<svg viewBox="0 0 120 120" class="tsvg" aria-hidden="true"><circl
  <ellipse class="mouth" cx="60" cy="84" rx="8" ry="3.5" fill="#c2410c"/><path d="M30 108c8-10 18-14 30-14s22 4 30 14" fill="#ff5d5d"/></svg>`;
 const PRAISE=["Great job!","Well done!","Excellent!","Super!","Fantastic!","You got it!"];
 const PRAISE_VI={"Great job!":"Làm tốt lắm!","Well done!":"Giỏi lắm!","Excellent!":"Xuất sắc!","Super!":"Tuyệt vời!","Fantastic!":"Tuyệt quá!","You got it!":"Con làm đúng rồi!"};
-let LS=null;
+let LS=null, SRC=LESSONS, SRCK="";
 
-function lesUnit(k){
+function lesUnit(k,g){ if(g!==undefined){ SRC=g?GRAMMAR:LESSONS; SRCK=g?"g":"" }
  try{speechSynthesis.cancel()}catch(e){}
- const L=LESSONS[k];
+ const L=SRC[k];
  app.innerHTML=`<div class="top"><button class="ghost" id="back">🏠 Home</button><span class="count">Unit ${L.u} · ${esc(L.title)}</span><button class="ghost" data-voice aria-label="voice settings">🗣️</button></div>
- <div class="card"><div class="tbox">${TEACHER}<div class="bubble">Hello! Choose a lesson. We will learn together! <span class="vn">· Chọn một bài, mình cùng học nhé!</span></div></div>
- <div class="plist" style="margin-top:14px">${L.parts.map((p,i)=>`<button class="unit part" data-p="${i}"><span class="ic" style="background:${L.color}22">${p.icon}</span><span><span class="t">${i+1}. ${esc(p.n)}</span><b>${p.steps.length} steps · ${lesStars(k,i)}</b></span></button>`).join("")}</div>
+ <div class="card"><div class="tbox">${TEACHER}<div class="bubble">${SRCK?"Grammar time! Choose a topic. I will explain, then you practise.":"Hello! Choose a lesson. We will learn together!"} <span class="vn">· ${SRCK?"Giờ ngữ pháp! Chọn một chủ điểm: cô giảng, rồi con luyện tập.":"Chọn một bài, mình cùng học nhé!"}</span></div></div>
+ <div class="plist" style="margin-top:14px">${L.parts.map((p,i)=>`<button class="unit part" data-p="${i}"><span class="ic" style="background:${L.color}22">${p.icon}</span><span><span class="t">${i+1}. ${esc(p.n)}</span><b>${p.steps.length} steps · ${lesStars(k,i,SRCK)}</b></span></button>`).join("")}</div>
  <div class="btns"><button class="ghost" id="rev">📝 Review quiz for this unit · Làm bài ôn tập</button></div></div>`;
  $("#back").onclick=home;
  $("#rev").onclick=()=>start("p"+L.u);
@@ -2175,10 +2407,10 @@ function talk(text,onend){ const t=document.querySelector(".tsvg"); if(t)t.class
 
 function lesStep(){
  try{speechSynthesis.cancel()}catch(e){}
- const L=LESSONS[LS.k], P=L.parts[LS.p], st=P.steps[LS.i], n=P.steps.length, kind=st[0];
+ const L=SRC[LS.k], P=L.parts[LS.p], st=P.steps[LS.i], n=P.steps.length, kind=st[0];
  let bubble="", vi="", body="", interactive=false, say="";
  const imgBox=e=>!e?"":String(e).startsWith("scene:")&&SC[e.slice(6)]?`<div class="pic scenebox">${SC[e.slice(6)]}</div>`:`<div class="pic"><div class="emo">${e}</div></div>`;
- const tkey="cge2-txt-"+LS.k+"-"+LS.p+"-"+LS.i; let custom=""; try{custom=localStorage.getItem(tkey)||""}catch(e){}
+ const tkey="cge2-txt-"+SRCK+LS.k+"-"+LS.p+"-"+LS.i; let custom=""; try{custom=localStorage.getItem(tkey)||""}catch(e){}
  if(kind==="read") LS.lastRead={title:st[1],text:custom||st[2]};
  if(LS.i===0) LS.lastRead=null;
  if(kind==="say"){ bubble=st[1]; vi=st[2]; body=imgBox(st[3]); say=st[1] }
@@ -2191,6 +2423,8 @@ function lesStep(){
  if(kind==="word"){ bubble=`New word: “${st[1]}”. Listen and say it!`; vi=`Từ mới: ${st[1]} = ${st[3]}. Nghe rồi nói theo nhé!`; say=`${st[1]}. ${st[1]}. ${st[4]}`;
   body=`<div class="wcard"><div class="emo">${st[2]}</div><div class="ww">${esc(st[1])}</div><div class="vn" style="font-size:18px">🇻🇳 ${esc(st[3])}</div>
    <div class="ex">🔊 <a href="#" id="exs">${esc(st[4])}</a></div></div>${micUI(st[1])}` }
+ if(kind==="rule"){ bubble=`${st[1]}. Look and listen!`; vi=st[3]; say=st[1]+". "+st[2].map(r=>r[0]+". "+r[1]).join(" ");
+  body=imgBox(st[4])+`<div class="rulecard"><h3>📐 ${esc(st[1])}</h3>${st[2].map((r,j)=>`<div class="rrow"><button class="say sm rsay" data-j="${j}" aria-label="listen">🔊</button><div><div class="rex">${esc(r[0])}</div>${r[1]?`<div class="rexp">${esc(r[1])}</div>`:""}</div></div>`).join("")}</div>` }
  if(kind==="speak"){ bubble=`Repeat after me: “${st[1]}”`; vi=`Con nhắc lại theo cô nhé: ${st[2]}`; say=`Repeat after me. ${st[1]}`;
   body=`<div class="wcard"><div class="ww" style="font-size:clamp(22px,5vw,30px)">${esc(st[1])}</div><div class="vn">🇻🇳 ${esc(st[2])}</div></div>${micUI(st[1])}` }
  if(["mc","fill","order","listen"].includes(kind)){ interactive=true; LS.tries=0; LS.done=false;
@@ -2221,6 +2455,7 @@ function lesStep(){
   talk(say,()=>{ if(!stop) play(0) }); }
  else if(kind==="listen"){ $("#play").onclick=()=>speak(st[1],.75); talk("Listen and tap the right picture.",()=>speak(st[1],.75)) }
  else talk(say);
+ if(kind==="rule") app.querySelectorAll(".rsay").forEach(b=>b.onclick=()=>{ const r=st[2][+b.dataset.j]; talk(r[0]+". "+r[1]) });
  if(kind==="word"){ $("#exs").onclick=e=>{e.preventDefault();speak(st[4])} }
  if(kind==="word"||kind==="speak") bindMic(st[1]);
  if($("#relisten")) $("#relisten").onclick=()=>talk(LS.lastRead.text);
@@ -2279,14 +2514,14 @@ function lesAnswer(ok, st, btn, typed){
 function lesUnlock(){ const b=$("#nxt"); b.disabled=false; b.focus({preventScroll:true}); $("#fb").scrollIntoView({behavior:"smooth",block:"nearest"}) }
 
 function lesEnd(){
- const L=LESSONS[LS.k], P=L.parts[LS.p], r=LS.asked?LS.first/LS.asked:1, s=r>=.9?3:r>=.6?2:1;
- const key=LS.k+"-"+LS.p; if(LP[key]==null||s>LP[key]) LP[key]=s; saveLP();
+ const L=SRC[LS.k], P=L.parts[LS.p], r=LS.asked?LS.first/LS.asked:1, s=r>=.9?3:r>=.6?2:1;
+ const key=SRCK+LS.k+"-"+LS.p; if(LP[key]==null||s>LP[key]) LP[key]=s; saveLP();
  const nextP=LS.p+1<L.parts.length?LS.p+1:null;
  app.innerHTML=`<div class="top"><button class="ghost" id="back">◀ Unit ${L.u}</button><span class="count">${esc(P.n)}</span></div>
  <div class="card" style="text-align:center"><div class="tbox" style="justify-content:center">${TEACHER}</div>
  <h1 style="font-size:clamp(26px,5vw,38px);margin-top:10px">${s===3?"Amazing work!":s===2?"Good job!":"Well done for trying!"}</h1>
  <div style="font-size:44px;color:#f59e0b">${"★".repeat(s)}${"☆".repeat(3-s)}</div>
- <p>You answered <b>${LS.first}</b> of <b>${LS.asked}</b> questions right the first time.</p>
+ <p style="font-size:22px;margin:4px 0"><b>Score: ${LS.asked?Math.round(LS.first/LS.asked*100)/10:10} / 10</b></p><p>You answered <b>${LS.first}</b> of <b>${LS.asked}</b> questions right the first time.</p>
  <p class="vn" style="font-size:17px">Con trả lời đúng ngay lần đầu ${LS.first}/${LS.asked} câu. ${s===3?"Cô rất tự hào về con!":s===2?"Con làm tốt lắm, cố thêm chút nữa nhé!":"Con học lại bài này một lần nữa nhé!"}</p>
  <div class="btns" style="justify-content:center">${nextP!=null?`<button class="main" id="np">Next lesson ▶ ${esc(L.parts[nextP].n)}</button>`:`<button class="main" id="rq">📝 Review quiz · Làm bài ôn tập Unit ${L.u}</button>`}<button class="ghost" id="rp">🔁 Learn again</button><button class="ghost" id="hm">🏠 Home</button></div></div>`;
  talk(s===3?"Amazing work! I'm so proud of you!":s===2?"Good job! Keep going!":"Well done for trying! Let's practise again.");
