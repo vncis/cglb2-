@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Global English 2 Review</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: cheerful, calm, made for a 7-year-old and her parent
+   IDEA: a sticker workbook – each unit is a bright tab, each question a page
+   PICTURE: big emoji/SVG illustration on a soft card above the answers
+   COLOUR and TYPE: sunshine yellow ground, deep ink blue, coral accent; Fredoka
+   LAYOUT: home = unit grid; quiz = one column card; result = score ring + skill bars + mistake list */
+:root{color-scheme:light dark;
+ --bg:light-dark(#fff6d6,#14213d);--card:light-dark(#ffffff,#1e2d50);--ink:light-dark(#14213d,#f3f6ff);
+ --soft:light-dark(#fdf0c2,#26375f);--muted:light-dark(#5a6482,#aab4d4);--line:light-dark(#efe1ad,#33466f);
+ --acc:#ff5d5d;--ok:#16a34a;--bad:#e11d48;--okbg:light-dark(#dcfce7,#12432a);--badbg:light-dark(#ffe4e6,#4a1726)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.5 Fredoka,"Segoe UI",system-ui,sans-serif;overflow-x:clip}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.wrap{max-width:980px;margin:0 auto;padding:clamp(16px,3vw,32px) max(4vw,14px) 48px}
+header{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+header .logo{font-size:44px;line-height:1}
+h1{font-size:clamp(28px,5vw,42px);line-height:1.05;margin:0;font-weight:700;text-wrap:balance}
+h2{font-size:24px;margin:26px 0 10px}
+.sub{color:var(--muted);margin:4px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.unit{background:var(--card);border:0;border-radius:20px;padding:16px;text-align:left;display:flex;gap:12px;align-items:center;min-height:96px;box-shadow:0 3px 0 var(--line);transition:transform .15s}
+.unit:hover{transform:translateY(-2px)}
+.unit .ic{width:58px;height:58px;border-radius:16px;display:grid;place-items:center;font-size:32px;flex:none}
+.unit b{display:block;font-size:14px;color:var(--muted);font-weight:500}
+.unit span.t{display:block;font-weight:600;font-size:18px;line-height:1.2}
+.stars{font-size:14px;letter-spacing:1px;margin-top:3px;color:#f59e0b}
+.top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ghost{background:var(--card);border:0;border-radius:14px;min-height:44px;padding:0 14px;box-shadow:0 2px 0 var(--line)}
+.bar{flex:1;height:14px;background:var(--card);border-radius:9px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--acc);border-radius:9px;transition:width .3s}
+.count{font-weight:600;white-space:nowrap}
+.card{background:var(--card);border-radius:26px;padding:clamp(16px,3vw,28px);box-shadow:0 4px 0 var(--line)}
+.qtext{font-size:clamp(20px,3.4vw,26px);font-weight:600;line-height:1.3;margin:0 0 14px;display:flex;gap:10px;align-items:flex-start}
+.say{flex:none;width:46px;height:46px;border-radius:50%;border:0;background:var(--soft);font-size:22px}
+.pic{background:var(--soft);border-radius:20px;min-height:170px;display:grid;place-items:center;margin-bottom:16px;padding:12px}
+.pic .emo{font-size:clamp(80px,16vw,120px);line-height:1.1;text-align:center}
+.pic svg{width:100%;max-width:260px;height:auto;max-height:230px}
+.pic .read{font-size:19px;max-width:560px;background:var(--card);padding:14px 18px;border-radius:14px;border-left:6px solid var(--acc)}
+.big-listen{width:120px;height:120px;border-radius:50%;border:0;background:var(--acc);color:#fff;font-size:56px;box-shadow:0 6px 0 #c63b3b}
+.opts{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
+.opts.pics{grid-template-columns:repeat(auto-fit,minmax(130px,1fr))}
+.opt{background:var(--card);border:3px solid var(--line);border-radius:18px;min-height:58px;padding:10px 14px;font-size:19px;text-align:left;font-weight:500}
+.opt:hover:not(:disabled){border-color:var(--acc)}
+.pics .opt{text-align:center;display:grid;place-items:center;gap:4px;min-height:130px}
+.pics .opt .e{font-size:58px;line-height:1}
+.opt.ok{background:var(--okbg);border-color:var(--ok)}
+.opt.bad{background:var(--badbg);border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.fillrow{display:flex;gap:10px;flex-wrap:wrap}
+.fillrow input{flex:1 1 200px;font:inherit;font-size:22px;padding:10px 16px;border-radius:16px;border:3px solid var(--line);background:var(--card);color:var(--ink);min-height:58px}
+.main{background:var(--acc);color:#fff;border:0;border-radius:16px;min-height:56px;padding:0 26px;font-size:19px;font-weight:600;box-shadow:0 4px 0 #c63b3b}
+.main:disabled{opacity:.5}
+.tiles{display:flex;flex-wrap:wrap;gap:8px;min-height:62px;padding:8px;border-radius:16px}
+.tiles.ans{background:var(--soft);border:3px dashed var(--line);margin-bottom:10px}
+.tile{background:var(--card);border:3px solid var(--line);border-radius:14px;min-height:46px;padding:4px 14px;font-size:19px}
+.fb{margin-top:16px;border-radius:18px;padding:14px 18px;display:none}
+.fb.show{display:block}.fb.ok{background:var(--okbg)}.fb.bad{background:var(--badbg)}
+.fb strong{font-size:20px}
+.next{margin-top:14px;display:flex;justify-content:flex-end}
+.res{display:grid;grid-template-columns:minmax(0,260px) minmax(0,1fr);gap:22px;align-items:center}
+.ring{position:relative;width:220px;height:220px;margin:auto}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .v{position:absolute;inset:0;display:grid;place-items:center;text-align:center}
+.ring .v b{font-size:56px;line-height:1}.ring .v small{display:block;color:var(--muted)}
+.skill{display:grid;grid-template-columns:8.5em minmax(0,1fr) 3.5em;gap:10px;align-items:center;margin:8px 0}
+.skill .track{height:16px;background:var(--soft);border-radius:9px;overflow:hidden}
+.skill .track i{display:block;height:100%;border-radius:9px}
+.skill .pc{text-align:right;font-weight:600;white-space:nowrap}
+.vn{color:var(--muted);font-size:15px}
+.mist{background:var(--card);border-radius:18px;padding:14px 16px;margin:10px 0;border-left:6px solid var(--bad)}
+.mist .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.chip{border-radius:10px;padding:2px 10px;font-size:15px;background:var(--soft)}
+.chip.r{background:var(--badbg)}.chip.g{background:var(--okbg)}
+.advice{background:var(--soft);border-radius:18px;padding:14px 18px;margin-top:14px}
+.btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+.hidden{display:none}
+@media(max-width:600px){.res{grid-template-columns:1fr}.ring{width:180px;height:180px}.skill{grid-template-columns:6.5em minmax(0,1fr) 3em}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+@keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
+.pop{animation:pop .35s}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+// t: mc | tf | fill | order | listen   s: vocab | grammar | phonics | reading | listening
+// For mc/listen: o[0] is the correct option (options are shuffled on screen). "emoji|word" = picture option.
+const UNITS = [
+{id:"s", n:"Starter", title:"Welcome!", page:10, color:"#ff8a3d", icon:"👋", q:[
+ {t:"mc",s:"grammar",l:"S.1",q:"She is a girl. ___ name is Rani.",img:"👧",o:["Her","His","My"],e:"For a girl we say her: Her name is Rani."},
+ {t:"mc",s:"grammar",l:"S.1",q:"He is a boy. ___ name is Tom.",img:"👦",o:["His","Her","Its"],e:"For a boy we say his: His name is Tom."},
+ {t:"order",s:"grammar",l:"S.1",q:"Put the words in order.",img:"🧒🌳",a:"Her name is Rani",e:"A sentence starts with a capital letter: Her name is Rani."},
+ {t:"mc",s:"vocab",l:"S.1",q:"What can you ask a new friend?",img:"🤝",o:["How do you spell your name?","How do you spell my name?","Where is your name?"],e:"We ask: How do you spell your name?"},
+ {t:"mc",s:"vocab",l:"S.2",q:"How many months are there in a year?",img:"📅",o:["12","10","30"],e:"There are twelve months in a year."},
+ {t:"mc",s:"reading",l:"S.2",q:"How many days are there in September?",img:"🗓️",o:["30","31","28"],e:"September has 30 days."},
+ {t:"mc",s:"vocab",l:"S.2",q:"Which month comes after March?",img:"🌱",o:["April","May","February"],e:"January, February, March, April…"},
+ {t:"fill",s:"vocab",l:"S.2",q:"Type the month that comes after June.",img:"☀️",a:["july"],e:"June, July, August."},
+ {t:"mc",s:"vocab",l:"S.2",q:"How do we say 1st?",img:"🥇",o:["first","one","once"],e:"1st = first, 2nd = second, 3rd = third."},
+ {t:"mc",s:"vocab",l:"S.2",q:"How do we say 3rd?",img:"🥉",o:["third","three","thirty"],e:"3rd = third."},
+ {t:"mc",s:"vocab",l:"S.2",q:"How do we say 22nd?",img:"📆",o:["twenty-second","twenty-two","twelfth"],e:"22nd = twenty-second."},
+ {t:"listen",s:"listening",l:"S.2",say:"twelve",q:"Listen. Which number do you hear?",o:["12","20","2"],e:"You heard twelve = 12."},
+ {t:"mc",s:"vocab",l:"S.2",q:"When is your birthday? — Choose the best answer.",img:"🎂",o:["It's on 12th April.","I'm seven.","It's Monday today."],e:"We answer with a date: It's on 12th April."},
+ {t:"mc",s:"vocab",l:"S.2",q:"You don't understand a word. What can you say?",img:"🤔",o:["What does 'dictionary' mean?","Goodbye!","I like ice cream."],e:"Ask: What does … mean? or How do you say it in English?"},
+ {t:"mc",s:"grammar",l:"S.1",q:"Say goodbye as ___ as you can. (not loudly)",img:"🤫",o:["softly","loud","soft"],e:"softly tells us HOW we say it. Many of these words end in -ly."}
+]},
+{id:"u1", n:"Unit 1", title:"A day at school", page:14, color:"#3d8bff", icon:"🏫", q:[
+ {t:"mc",s:"vocab",l:"1.1",q:"What is this?",img:"📅",o:["calendar","clock","tablet"],e:"A calendar shows the days and months."},
+ {t:"mc",s:"vocab",l:"1.1",q:"What is this?",img:{clock:[10,10]},o:["clock","calendar","book"],e:"A clock tells us the time."},
+ {t:"mc",s:"vocab",l:"1.2",q:"What time is it?",img:{clock:[3,0]},o:["It's three o'clock.","It's twelve o'clock.","It's nine o'clock."],e:"The short hand points to 3, the long hand points to 12: three o'clock."},
+ {t:"mc",s:"vocab",l:"1.2",q:"What time is it?",img:{clock:[9,0]},o:["It's nine o'clock.","It's three o'clock.","It's six o'clock."],e:"The short hand points to 9: nine o'clock."},
+ {t:"mc",s:"grammar",l:"1.2",q:"The children sing. Marco ___.",img:"🎤",o:["sings","sing","singing"],e:"With one person (he, she, Marco) we add -s: Marco sings."},
+ {t:"fill",s:"grammar",l:"1.2",q:"The children read. Marco ___. (read)",img:"📖",a:["reads"],e:"Marco is one person, so add -s: reads."},
+ {t:"mc",s:"reading",l:"1.2",q:"Stories are not real. They are ___.",img:"🐉",o:["make-believe","information","true"],e:"Stories are make-believe. Some books give real information."},
+ {t:"mc",s:"vocab",l:"1.2",q:"The people or animals in a story are called ___.",img:"🐻🧒",o:["characters","authors","chapters"],e:"Characters are the people or animals in a story."},
+ {t:"mc",s:"vocab",l:"1.3",q:"The author is ___.",img:"✍️",o:["the writer of a book","the name of a book","a page in a book"],e:"author = the writer. title = the name of a book."},
+ {t:"mc",s:"vocab",l:"1.3",q:"A ___ page is at the beginning of a book. It tells you what is in the book.",img:"📚",o:["contents","cover","title"],e:"The contents page lists the chapters and pages."},
+ {t:"mc",s:"grammar",l:"1.4",q:"Is this your backpack? — Yes, it's ___.",img:"🎒",o:["mine","my","me"],e:"my backpack = mine. Is it yours? Yes, it's mine."},
+ {t:"mc",s:"grammar",l:"1.4",q:"This is Jill's backpack. What does ___ have in her backpack?",img:"👧🎒",o:["she","he","it"],e:"Jill is a girl: she … her backpack."},
+ {t:"mc",s:"grammar",l:"1.4",q:"Jing is a boy. He ___ two keys.",img:"🔑🔑",o:["has","have","is"],e:"He / she has. I / you / they have."},
+ {t:"mc",s:"phonics",l:"1.5",q:"Which letter is a vowel?",img:"🔤",o:["e","b","k","s"],e:"The vowels are a, e, i, o, u."},
+ {t:"mc",s:"phonics",l:"1.5",q:"Which word starts with a short vowel sound?",o:["🐙|octopus","🐟|fish","🐶|dog"],e:"octopus starts with the vowel o."},
+ {t:"mc",s:"phonics",l:"1.5",q:"Which word has the sound sh?",o:["🚢|ship","🍟|chips","🖐️|fifth"],e:"ship has sh. chips has ch. fifth has th."},
+ {t:"listen",s:"listening",l:"1.1",say:"Wednesday",q:"Listen. Which day do you hear?",o:["Wednesday","Monday","Sunday"],e:"You heard Wednesday."},
+ {t:"mc",s:"reading",l:"1.6",q:"Fernando's school: where does Fernando live?",img:{text:"My name is Fernando. I live in Cebu, the Philippines. I am in the second grade."},o:["In Cebu, the Philippines","In Mexico","In China"],e:"Fernando lives in Cebu, the Philippines."},
+ {t:"mc",s:"reading",l:"1.6",q:"What does Fernando eat at break time?",img:"🥭",o:["dried mango","an apple","soup"],e:"At break time he has a snack: dried mango."},
+ {t:"mc",s:"reading",l:"1.6",q:"Being responsible means…",img:"🧹",o:["You tidy up after yourself.","You forget your homework.","You leave your books on the floor."],e:"Responsible children tidy up, take care of their things and do their homework."}
+]},
+{id:"u2", n:"Unit 2", title:"Good neighbours", page:30, color:"#16a34a", icon:"🏘️", q:[
+ {t:"mc",s:"vocab",l:"2.1",q:"Who is this?",img:"👮",o:["police officer","nurse","bus driver"],e:"A police officer helps keep us safe."},
+ {t:"mc",s:"vocab",l:"2.1",q:"Who is this?",img:"🧑‍⚕️",o:["nurse","reporter","window cleaner"],e:"A nurse helps sick people."},
+ {t:"mc",s:"vocab",l:"2.2",q:"A firefighter wears a ___ on their head.",img:"🧑‍🚒",o:["helmet","mask","glove"],e:"The helmet keeps the firefighter's head safe."},
+ {t:"mc",s:"reading",l:"2.2",q:"Why does a firefighter wear a mask?",img:"😷",o:["To breathe fresh air","To touch hot things","To keep their feet safe"],e:"The mask lets the firefighter breathe fresh air."},
+ {t:"mc",s:"reading",l:"2.2",q:"Firefighters can touch hot things with their ___.",img:"🧤",o:["gloves","boots","jackets"],e:"Heavy gloves protect their hands."},
+ {t:"mc",s:"reading",l:"2.3",q:"Silvia lives in a city called Merida. Which country is it in?",img:"🇲🇽",o:["Mexico","Kenya","Russia"],e:"Merida is in Mexico. Mexico is in North America."},
+ {t:"mc",s:"reading",l:"2.3",q:"How many continents are there?",img:"🌍",o:["7","5","12"],e:"There are 7 continents, for example Africa, Asia and North America."},
+ {t:"mc",s:"vocab",l:"2.3",q:"Which word comes after ninth?",img:"🛗",o:["tenth","tenty","ten"],e:"…eighth, ninth, tenth, eleventh, twelfth…"},
+ {t:"fill",s:"vocab",l:"2.3",q:"Silvia presses button 2 in the lift. She goes to the ___ floor.",img:"2️⃣",a:["second"],e:"2 → second floor."},
+ {t:"mc",s:"grammar",l:"2.4",q:"Where is the ball?",img:{prep:"under"},o:["under the box","on the box","in the box"],e:"The ball is below the box: under."},
+ {t:"mc",s:"grammar",l:"2.4",q:"Where is the ball?",img:{prep:"on"},o:["on the box","under the box","next to the box"],e:"The ball is on top of the box: on."},
+ {t:"mc",s:"grammar",l:"2.4",q:"Where is the ball?",img:{prep:"between"},o:["between the boxes","in the box","behind the box"],e:"There is a box on each side: between."},
+ {t:"mc",s:"grammar",l:"2.4",q:"Where is the ball?",img:{prep:"next"},o:["next to the box","under the box","in the box"],e:"The ball is beside the box: next to."},
+ {t:"mc",s:"vocab",l:"2.4",q:"Which way?",img:{arrow:"right"},o:["Turn right.","Turn left.","Go straight ahead."],e:"The arrow points right."},
+ {t:"mc",s:"phonics",l:"2.5",q:"teach + er = ?",img:"🧑‍🏫",o:["teacher","teachor","teachir"],e:"teach + er = teacher."},
+ {t:"mc",s:"phonics",l:"2.5",q:"act + or = ?",img:"🎭",o:["actor","acter","actur"],e:"act + or = actor."},
+ {t:"fill",s:"grammar",l:"2.5",q:"I am a baker. I ___ bread.",img:"🍞",a:["bake"],e:"A baker bakes bread."},
+ {t:"mc",s:"phonics",l:"2.5",q:"Which word has the spelling ur?",o:["🧑‍⚕️|nurse","🐦|bird","✍️|writer"],e:"nurse has ur. bird has ir. writer has er. They make the same sound!"},
+ {t:"mc",s:"reading",l:"2.6",q:"What does unhelpful mean?",img:"🙅",o:["not helpful","very helpful","helping"],e:"un- at the start means not: unhelpful = not helpful."},
+ {t:"mc",s:"vocab",l:"2.6",q:"Another word for sad that starts with un- is…",img:"😢",o:["unhappy","unkind","unfair"],e:"unhappy = not happy = sad."}
+]},
+{id:"u3", n:"Unit 3", title:"Ready, steady, go!", page:46, color:"#e11d48", icon:"🏃", q:[
+ {t:"mc",s:"vocab",l:"3.1",q:"What is she doing?",img:"👋",o:["wave","hop","fall"],e:"She waves her hand."},
+ {t:"mc",s:"vocab",l:"3.1",q:"Touch your ___!",img:"👃",o:["nose","ear","toes"],e:"This is a nose."},
+ {t:"mc",s:"vocab",l:"3.1",q:"Which part of the body is this?",img:"💪",o:["arm","leg","tummy"],e:"This is an arm."},
+ {t:"mc",s:"vocab",l:"3.2",q:"Which action do we do with our feet?",img:"🦶",o:["hop","clap","wave"],e:"We hop on one foot. We clap and wave with our hands."},
+ {t:"mc",s:"grammar",l:"3.2",q:"We can't count milk. Which is correct?",img:"🥛",o:["some milk","3 milks","a milks"],e:"We say some milk. We can count apples: 3 apples."},
+ {t:"mc",s:"reading",l:"3.3",q:"Which bird has the biggest egg?",img:"🥚",o:["the ostrich","the hummingbird","the duck"],e:"An ostrich egg is as big as 24 hen's eggs!"},
+ {t:"mc",s:"reading",l:"3.3",q:"Who keeps the Emperor penguin egg warm?",img:"🐧",o:["the father penguin","the mother duck","nobody"],e:"The father penguin keeps the egg on his feet."},
+ {t:"mc",s:"reading",l:"3.3",q:"All birds have ___ and all birds lay eggs.",img:"🪶",o:["feathers","fur","fins"],e:"All birds have feathers."},
+ {t:"tf",s:"reading",l:"3.3",q:"An ostrich can fly.",img:"🦤",o:["True","False"],a:1,e:"False. An ostrich can't fly, but it can run very fast."},
+ {t:"mc",s:"grammar",l:"3.3",q:"A kiwi can't fly or swim, ___ it can walk.",img:"🥝🐦",o:["but","and","or"],e:"We use but to show something different."},
+ {t:"fill",s:"phonics",l:"3.4",q:"Write the -ing form: cut → ___",img:"✂️",a:["cutting"],e:"cut ends in one vowel + one consonant, so double the t: cutting."},
+ {t:"fill",s:"phonics",l:"3.4",q:"Write the -ing form: wave → ___",img:"👋",a:["waving"],e:"wave ends in silent e. Take away e, add -ing: waving."},
+ {t:"mc",s:"grammar",l:"3.4",q:"Look! He ___ the paper.",img:"📄✂️",o:["is cutting","cutting","cut is"],e:"Now: he is + verb-ing → He is cutting."},
+ {t:"mc",s:"phonics",l:"3.5",q:"Sam + e = ?",img:"🔤",o:["same","sam","seem"],e:"Silent e makes the vowel say its name: same."},
+ {t:"mc",s:"phonics",l:"3.5",q:"Which word has the long a sound?",o:["🌧️|rain","🐱|cat","🎩|hat"],e:"rain has ai = long a. cat and hat have short a."},
+ {t:"mc",s:"vocab",l:"3.5",q:"How does he feel?",img:"😨",o:["scared","tired","excited"],e:"He is scared."},
+ {t:"mc",s:"vocab",l:"3.5",q:"How does she feel?",img:"😴",o:["tired","angry","confused"],e:"She is tired."},
+ {t:"mc",s:"reading",l:"3.6",q:"Bear and Turtle: why do the turtles want to teach Bear a lesson?",img:"🐻",o:["Bear is always boasting.","Bear is kind.","Bear is slow."],e:"Bear always says he is the best."},
+ {t:"mc",s:"reading",l:"3.6",q:"How many turtles were really in the race?",img:"🐢",o:["4","1","2"],e:"Four turtles! They each waited in a different place."},
+ {t:"mc",s:"reading",l:"3.6",q:"What can you say to a friend who lost a race?",img:"🤗",o:["I'm sorry you're sad. Let's play something else.","You are slow!","Go away."],e:"Kind words help a friend feel better."}
+]},
+{id:"u4", n:"Unit 4", title:"The big sky", page:64, color:"#7c3aed", icon:"🌙", q:[
+ {t:"mc",s:"reading",l:"4.1",q:"At midday the Sun is high. Your shadow is…",img:{shadow:"midday"},o:["short","long","blue"],e:"Sun high = short shadow."},
+ {t:"mc",s:"reading",l:"4.1",q:"In the morning the Sun is low. Your shadow is…",img:{shadow:"morning"},o:["long","short","gone"],e:"Sun low = long shadow."},
+ {t:"mc",s:"reading",l:"4.1",q:"To make a shadow, you need…",img:"🔦",o:["light","water","wind"],e:"A shadow needs light, like the Sun or a torch."},
+ {t:"mc",s:"reading",l:"4.2",q:"A sundial tells the time with a…",img:"☀️🕰️",o:["shadow","hand","number"],e:"A sundial uses a shadow. A clock uses hands."},
+ {t:"mc",s:"reading",l:"4.3",q:"The Sun is a…",img:"☀️",o:["star","planet","moon"],e:"The Sun is a star at the centre of our solar system."},
+ {t:"mc",s:"reading",l:"4.3",q:"Earth is the ___ planet from the Sun.",img:"🌍",o:["third","first","eighth"],e:"Earth is the third planet away from the Sun."},
+ {t:"mc",s:"reading",l:"4.3",q:"How many planets circle around our Sun?",img:"🪐",o:["8","3","100"],e:"Eight planets circle around the Sun."},
+ {t:"mc",s:"reading",l:"4.3",q:"Why do we have night?",img:"🌃",o:["Our part of Earth faces away from the Sun.","The Sun goes out.","The Moon covers the Sun."],e:"Earth turns. When our part faces away from the Sun, it is night."},
+ {t:"tf",s:"reading",l:"4.3",q:"The Moon circles around Earth.",img:"🌕",o:["True","False"],a:0,e:"True. We see the Moon because the Sun shines on it."},
+ {t:"fill",s:"grammar",l:"4.4",q:"Yesterday I ___ to the park. (walk)",img:"🚶",a:["walked"],e:"Past: walk + ed = walked."},
+ {t:"mc",s:"grammar",l:"4.4",q:"Last night we ___ TV.",img:"📺",o:["watched","watch","watching"],e:"Last night = past, so add -ed: watched."},
+ {t:"mc",s:"grammar",l:"4.4",q:"Where ___ Paco this afternoon?",img:"🧒",o:["was","were","is"],e:"One person in the past: was. Many people: were."},
+ {t:"mc",s:"grammar",l:"4.4",q:"Where ___ his sisters this afternoon?",img:"👧👧",o:["were","was","are"],e:"Many people in the past: were."},
+ {t:"mc",s:"phonics",l:"4.5",q:"Which word rhymes with bite?",o:["🪁|kite","🐱|cat","🛏️|bed"],e:"bite – kite: both end in -ite."},
+ {t:"mc",s:"phonics",l:"4.5",q:"Which word has the spelling -ight?",o:["🌙|night","☀️|sunny","🪰|fly"],e:"night = n + ight."},
+ {t:"mc",s:"vocab",l:"4.5",q:"sun + shine = ?",img:"🌞",o:["sunshine","sunrise","sunglasses"],e:"sunshine is a compound word: two little words in one big word."},
+ {t:"mc",s:"vocab",l:"4.5",q:"A coat to wear in the rain is a…",img:"🧥🌧️",o:["raincoat","sailboat","sunglasses"],e:"rain + coat = raincoat."},
+ {t:"mc",s:"reading",l:"4.6",q:"Why do we need spacesuits on the Moon?",img:"🧑‍🚀",o:["There is no air on the Moon.","It is always raining.","There are too many people."],e:"The spacesuit backpack gives us air to breathe."},
+ {t:"listen",s:"listening",l:"4.5",say:"cloudy",q:"Listen. What is the weather?",o:["☁️|cloudy","☀️|sunny","🌧️|rainy"],e:"You heard cloudy."}
+]},
+{id:"u5", n:"Unit 5", title:"Let's measure", page:80, color:"#0891b2", icon:"📏", q:[
+ {t:"mc",s:"vocab",l:"5.1",q:"10, 20, 30, ___",img:"🔟",o:["40","31","50"],e:"Count in tens: 10, 20, 30, 40."},
+ {t:"listen",s:"listening",l:"5.1",say:"seventy",q:"Listen. Which number do you hear?",o:["70","17","7"],e:"You heard seventy = 70. Seventeen = 17."},
+ {t:"fill",s:"vocab",l:"5.1",q:"Write 100 in words: one ___",img:"💯",a:["hundred"],e:"100 = one hundred."},
+ {t:"mc",s:"vocab",l:"5.2",q:"What shape is this?",img:{shape:"triangle",color:"#ef4444"},o:["triangle","square","circle"],e:"A triangle has 3 sides."},
+ {t:"mc",s:"vocab",l:"5.2",q:"What shape is this?",img:{shape:"rectangle",color:"#22c55e"},o:["rectangle","square","heart"],e:"A rectangle has 4 sides: 2 long and 2 short."},
+ {t:"mc",s:"grammar",l:"5.2",q:"Describe the shape.",img:{shape:"triangle",color:"#ef4444",big:1},o:["a big red triangle","a red big triangle","a triangle big red"],e:"In English: size first, then colour: a big red triangle."},
+ {t:"order",s:"grammar",l:"5.2",q:"Put the words in order.",img:{shape:"circle",color:"#a855f7"},a:"a little purple circle",e:"Size (little) comes before colour (purple)."},
+ {t:"mc",s:"reading",l:"5.3",q:"How many centimetres are there in a metre?",img:"📏",o:["100","10","1000"],e:"100 centimetres = 1 metre."},
+ {t:"mc",s:"reading",l:"5.3",q:"We measure a pencil in…",img:"✏️",o:["centimetres","metres"],e:"Small things: centimetres. Big things: metres."},
+ {t:"mc",s:"reading",l:"5.3",q:"Long ago in Rome, people measured in…",img:"👣",o:["footsteps","rulers","metres"],e:"People in Ancient Rome measured in footsteps."},
+ {t:"mc",s:"grammar",l:"5.4",q:"Where did you go yesterday? — We ___ to the zoo.",img:"🦁",o:["went","goed","go"],e:"go → went (irregular)."},
+ {t:"fill",s:"grammar",l:"5.4",q:"see → ___ (past)",img:"👀",a:["saw"],e:"see → saw. I saw an elephant."},
+ {t:"mc",s:"grammar",l:"5.4",q:"He ___ an apple.",img:"🍎",o:["ate","eated","eat"],e:"eat → ate."},
+ {t:"mc",s:"reading",l:"5.4",q:"Clever Birbal: how did Birbal make the King's line shorter?",img:"📏",o:["He drew a longer line under it.","He rubbed out the end.","He cut the floor."],e:"Next to a longer line, the King's line looks shorter!"},
+ {t:"mc",s:"phonics",l:"5.5",q:"I ___ eight bananas.",img:"🍌",o:["ate","eight"],e:"ate (past of eat) sounds the same as eight (8)."},
+ {t:"mc",s:"phonics",l:"5.5",q:"These ___ are for you.",img:"🎁",o:["four","for"],e:"four = the number 4. for = to give to someone."},
+ {t:"mc",s:"phonics",l:"5.5",q:"I ___ one prize!",img:"🏆",o:["won","one"],e:"won (past of win) sounds like one (1)."},
+ {t:"mc",s:"vocab",l:"5.5",q:"A cheetah can run 30 metres in a second. A cheetah is…",img:"🐆",o:["fast","heavy","clever"],e:"Cheetahs are very fast."},
+ {t:"mc",s:"vocab",l:"5.5",q:"An elephant weighs the same as 100 men. An elephant is…",img:"🐘",o:["heavy","fast","little"],e:"Elephants are heavy."},
+ {t:"mc",s:"reading",l:"5.6",q:"Many ways to count to ten: who became the new king?",img:"👑",o:["Little Antelope","Elephant","Chimpanzee"],e:"Little Antelope counted 2, 4, 6, 8, 10 – in twos!"},
+ {t:"mc",s:"reading",l:"5.6",q:"Which animal counted quickly but didn't win?",img:"🐒",o:["Chimpanzee","Antelope","Leopard"],e:"The chimpanzee counted quickly but only got to 8."}
+]},
+{id:"u6", n:"Unit 6", title:"All about bugs", page:96, color:"#ca8a04", icon:"🐞", q:[
+ {t:"mc",s:"reading",l:"6.2",q:"How many legs does an insect have?",img:"🐜",o:["6","8","4"],e:"All insects have six legs."},
+ {t:"mc",s:"reading",l:"6.3",q:"How many legs does a spider have?",img:"🕷️",o:["8","6","10"],e:"All spiders have eight legs."},
+ {t:"mc",s:"reading",l:"6.2",q:"Which one is NOT an insect?",o:["🕷️|spider","🐝|bee","🦋|butterfly","🐜|ant"],e:"A spider has 8 legs, so it is not an insect."},
+ {t:"tf",s:"reading",l:"6.3",q:"Ants use their antennae to feel, smell and taste.",img:"🐜",o:["True","False"],a:0,e:"True!"},
+ {t:"mc",s:"reading",l:"6.3",q:"A spider makes a web from…",img:"🕸️",o:["silk","paper","mud"],e:"Silk comes from the spider's body. It is light and strong."},
+ {t:"mc",s:"reading",l:"6.4",q:"How do bees help people?",img:"🐝🍯",o:["They make honey.","They make silk.","They build houses."],e:"Bees make honey. Silkworms make silk."},
+ {t:"mc",s:"reading",l:"6.4",q:"How do butterflies taste food?",img:"🦋",o:["With their feet","With their mouths","With their wings"],e:"Butterflies don't have mouths. They taste with their feet!"},
+ {t:"mc",s:"grammar",l:"6.4",q:"___ do you eat breakfast? — I eat breakfast at home.",img:"🏠",o:["Where","What","How"],e:"Where asks about a place."},
+ {t:"mc",s:"grammar",l:"6.4",q:"___ do you eat for breakfast? — I eat yogurt.",img:"🥣",o:["What","Where","How"],e:"What asks about a thing."},
+ {t:"mc",s:"grammar",l:"6.4",q:"___ do you eat yogurt? — With a spoon.",img:"🥄",o:["How","Where","What"],e:"How asks about the way you do something."},
+ {t:"mc",s:"phonics",l:"6.5",q:"Which word has the long e sound?",o:["🐝|bee","🛏️|bed","🥚|egg"],e:"bee has ee = long e."},
+ {t:"mc",s:"phonics",l:"6.5",q:"In head, the letters ea make…",img:"🗣️",o:["a short e sound","a long e sound"],e:"head – short e. eat – long e."},
+ {t:"mc",s:"phonics",l:"6.5",q:"There's a cricket on my head. Now it's on my… (rhyme)",img:"🦗",o:["bed","toe","knee"],e:"head – bed rhyme."},
+ {t:"mc",s:"reading",l:"6.6",q:"Little Ant: what fell on Little Ant?",img:"🍂",o:["a big leaf","a mouse","a stone"],e:"A big leaf fell on her and she couldn't move."},
+ {t:"mc",s:"reading",l:"6.6",q:"Who helped Little Ant?",img:"🐜",o:["Cousin Flea","the cat","the mouse"],e:"Cousin Flea bit the dog, and that started everything."},
+ {t:"mc",s:"grammar",l:"6.6",q:"The flea ___ the dog. (bite)",img:"🐕",o:["bit","bited","bite"],e:"bite → bit."},
+ {t:"order",s:"reading",l:"6.7",q:"Put the life cycle in order.",img:"🐛➡️🦋",a:"caterpillar chrysalis butterfly",e:"First a caterpillar, then a chrysalis, then a butterfly."}
+]},
+{id:"u7", n:"Unit 7", title:"The world around us", page:114, color:"#059669", icon:"🌳", q:[
+ {t:"mc",s:"vocab",l:"7.1",q:"What does this sign mean?",img:"♻️",o:["recycle","plant","water"],e:"We recycle paper, bottles and cans."},
+ {t:"mc",s:"vocab",l:"7.1",q:"Dad is ___ trees.",img:"🧑‍🌾🌱",o:["planting","picking up","recycling"],e:"He puts small trees into the ground: planting."},
+ {t:"mc",s:"vocab",l:"7.2",q:"Which part of a plant is under the ground?",img:{plant:1},o:["roots","flower","leaf"],e:"Roots are under the ground. Then stem, leaf and flower."},
+ {t:"mc",s:"reading",l:"7.2",q:"Green leaves of trees…",img:"🍃",o:["clean the air","make the air dirty","make noise"],e:"Leaves clean the air and give us fresh air to breathe."},
+ {t:"mc",s:"reading",l:"7.3",q:"Paper is made from…",img:"📄",o:["wood","glass","metal"],e:"Paper is made from wood – from trees!"},
+ {t:"mc",s:"reading",l:"7.3",q:"When we recycle paper, ___ trees are cut down.",img:"🌲",o:["fewer","more"],e:"Recycling old paper saves trees."},
+ {t:"mc",s:"grammar",l:"7.4",q:"(one plant, near) ___ is a potato plant.",img:"🥔",o:["This","These","Those"],e:"one + near = this."},
+ {t:"mc",s:"grammar",l:"7.4",q:"(many plants, near) ___ are onion plants.",img:"🧅🧅🧅",o:["These","This","That"],e:"many + near = these."},
+ {t:"mc",s:"grammar",l:"7.4",q:"(many mangoes, far away) Can I have ___ mangoes, please?",img:"🥭🥭",o:["those","that","this"],e:"many + far = those."},
+ {t:"mc",s:"grammar",l:"7.4",q:"(one pineapple, far away) I'd like ___ pineapple.",img:"🍍",o:["that","those","these"],e:"one + far = that."},
+ {t:"order",s:"reading",l:"7.4",q:"How do you plant a plant? Put the steps in order.",img:"🌱",a:"dig a hole | put the plant in | fill the hole with soil | water the plant",split:"|",e:"First dig a hole, next put the plant in, then fill it with soil, last water it."},
+ {t:"mc",s:"phonics",l:"7.5",q:"Which word has the long o sound?",o:["❄️|snow","🦉|owl","🐄|cow"],e:"snow – long o. owl and cow have a different ow sound."},
+ {t:"mc",s:"phonics",l:"7.5",q:"Which word has the ow sound you hear in cow?",o:["🦉|owl","🐦‍⬛|crow","❄️|snow"],e:"owl and cow sound the same. crow and snow have long o."},
+ {t:"mc",s:"reading",l:"7.6",q:"Wangari Maathai was from…",img:"🌍",o:["Kenya","Mexico","Malaysia"],e:"Wangari was born in 1940 in a small village in Kenya."},
+ {t:"mc",s:"reading",l:"7.6",q:"Why did people call Wangari 'Mama Trees'?",img:"🌳",o:["She planted lots of trees.","She cut down trees.","She lived in a tree."],e:"She and the women and children planted rows and rows of trees."},
+ {t:"mc",s:"reading",l:"7.6",q:"What did Wangari say?",img:"💬",o:["Little things make a big difference.","Big things are better.","Trees are not important."],e:"Her little thing was planting trees."}
+]},
+{id:"u8", n:"Unit 8", title:"Home, sweet home", page:130, color:"#db2777", icon:"🏠", q:[
+ {t:"mc",s:"vocab",l:"8.1",q:"A nest is a home for a…",img:"🪺",o:["bird","bee","rabbit"],e:"Birds live in nests. Bees live in a hive."},
+ {t:"mc",s:"vocab",l:"8.1",q:"A hive is a home for a…",img:"🐝",o:["bee","bird","fish"],e:"A hive is a home for bees."},
+ {t:"mc",s:"vocab",l:"8.2",q:"Where do you wash your hands?",img:"🧼",o:["in the bathroom","in the garden","in the bedroom"],e:"We wash our hands in the bathroom."},
+ {t:"mc",s:"vocab",l:"8.2",q:"What is this?",img:"🛁",o:["bath","bed","cooker"],e:"A bath is in the bathroom."},
+ {t:"mc",s:"reading",l:"8.3",q:"Adobe houses are made from…",img:"🏜️",o:["mud and dry grass","glass and metal","ice"],e:"Thick mud walls keep adobe houses cool."},
+ {t:"tf",s:"reading",l:"8.3",q:"Stilt houses keep you warm in cold weather.",img:"🛖",o:["True","False"],a:1,e:"False. Stilt houses are in hot, wet places. Air blows under them and keeps them cool."},
+ {t:"mc",s:"reading",l:"8.3",q:"'To get to my home, I go up in a lift.' Where does this child live?",img:"🏙️",o:["in a skyscraper","in a cave house","in an adobe house"],e:"Skyscrapers are very tall buildings with lifts."},
+ {t:"mc",s:"grammar",l:"8.4",q:"Will the paper clip slide? — No, it ___.",img:"📎",o:["won't","will","didn't"],e:"will not = won't."},
+ {t:"fill",s:"grammar",l:"8.4",q:"do not = ___",img:"🚫",a:["don't","dont","don’t"],e:"do not = don't."},
+ {t:"mc",s:"grammar",l:"8.4",q:"did not = ___",img:"🚫",o:["didn't","don't","doesn't"],e:"did not = didn't."},
+ {t:"mc",s:"grammar",l:"8.4",q:"What will you have in your playground? — I ___ have swings.",img:"🛝",o:["will","was","am"],e:"Future: will + verb."},
+ {t:"mc",s:"phonics",l:"8.5",q:"Which word has the same oo sound as zoo?",o:["🌕|moon","📖|book","🦶|foot"],e:"moon and zoo. book and foot have a different oo sound."},
+ {t:"mc",s:"phonics",l:"8.5",q:"Which word rhymes with zoo?",o:["💙|blue","🐶|dog","🪵|wood"],e:"zoo – blue – grew rhyme."},
+ {t:"mc",s:"reading",l:"8.6",q:"Which animal home has a mushroom garden?",img:"🍄",o:["termite home","rabbit home","beaver home"],e:"Some termites grow mushrooms in garden rooms."},
+ {t:"mc",s:"reading",l:"8.6",q:"Which animal stamps its foot when it sees a fox?",img:"🦊",o:["rabbit","beaver","termite"],e:"The other rabbits hear it and run down a hole."},
+ {t:"mc",s:"reading",l:"8.6",q:"How do beavers go into their home?",img:"🦫",o:["through underwater tunnels","through the roof","up a ladder"],e:"Underwater tunnels keep them safe from wolves."}
+]},
+{id:"u9", n:"Unit 9", title:"Let's explore the city!", page:146, color:"#ea580c", icon:"🏙️", q:[
+ {t:"mc",s:"vocab",l:"9.1",q:"What is this?",img:"🚁",o:["helicopter","ferry","plane"],e:"A helicopter flies over the city."},
+ {t:"mc",s:"vocab",l:"9.1",q:"What is this?",img:"⛴️",o:["ferry","underground train","bridge"],e:"A ferry takes people across the water."},
+ {t:"mc",s:"vocab",l:"9.5",q:"What is this?",img:"🚦",o:["traffic light","Ferris wheel","bridge"],e:"Red means stop, green means go."},
+ {t:"mc",s:"vocab",l:"9.1",q:"I like riding on the ferry. — I do ___!",img:"😊",o:["too","two","to"],e:"I do too! = I like it as well."},
+ {t:"mc",s:"vocab",l:"9.2",q:"A shark has big teeth. It is…",img:"🦈",o:["scary and dangerous","cute and gentle","clumsy and little"],e:"Sharks can be scary and dangerous."},
+ {t:"mc",s:"grammar",l:"9.2",q:"Can I have that hat, please? — The one ___ the turtle?",img:"🧢🐢",o:["with","or","and"],e:"the one with the turtle = the hat that has a turtle."},
+ {t:"mc",s:"grammar",l:"9.2",q:"Do you want the red gloves ___ the grey gloves?",img:"🧤",o:["or","with","but"],e:"or gives a choice."},
+ {t:"mc",s:"vocab",l:"9.3",q:"Which way?",img:{arrow:"straight"},o:["Walk straight ahead.","Turn left.","Turn right."],e:"The arrow points straight ahead."},
+ {t:"mc",s:"vocab",l:"9.3",q:"The waiter says: 'Can I take your order, please?' You say…",img:"🍽️",o:["Yes, can I have noodle soup, please?","Goodbye!","I'm seven."],e:"Order food politely: Can I have …, please?"},
+ {t:"mc",s:"grammar",l:"9.4",q:"Yesterday we ___ at the Rooftop Café.",img:"☕",o:["ate","will eat","are eating"],e:"Yesterday = past: ate."},
+ {t:"mc",s:"grammar",l:"9.4",q:"Tomorrow we ___ ride the Ferris wheel.",img:"🎡",o:["will","did","are"],e:"Tomorrow = future: will ride."},
+ {t:"mc",s:"grammar",l:"9.4",q:"Look! I ___ visiting the zoo now.",img:"🦓",o:["am","was","will"],e:"Now: I am + verb-ing."},
+ {t:"mc",s:"vocab",l:"9.5",q:"The opposite of day is…",img:"🌞",o:["night","white","high"],e:"day ↔ night."},
+ {t:"mc",s:"vocab",l:"9.5",q:"The opposite of weak is…",img:"💪",o:["strong","wrong","low"],e:"weak ↔ strong."},
+ {t:"fill",s:"vocab",l:"9.5",q:"The opposite of up is ___",img:"⬆️",a:["down"],e:"up ↔ down."},
+ {t:"mc",s:"phonics",l:"9.5",q:"The opposite of slowly is…",img:"🐇",o:["quickly","quietly","sadly"],e:"slowly ↔ quickly. quietly ↔ loudly."},
+ {t:"mc",s:"reading",l:"9.6",q:"City Mouse and Country Mouse: what scared Callie in the city?",img:"🐈",o:["a cat","an owl","a dog"],e:"At the party a cat came, and Callie ran home."},
+ {t:"mc",s:"reading",l:"9.6",q:"What scared Cindy in the country?",img:"🦉",o:["an owl","a cat","a taxi"],e:"An owl came, so Cindy went back to the city."},
+ {t:"mc",s:"reading",l:"9.6",q:"What is the lesson of the story?",img:"🏡",o:["East, west, home is best.","The city is bad.","Mice can't run."],e:"Both mice were happy to be home."}
+]}
+];
+
+const REVIEWS = [
+ {id:"c1", n:"Check 1", title:"Check your progress 1 (Units 1–3)", from:["s","u1","u2","u3"], color:"#334155", icon:"⭐", page:62},
+ {id:"c2", n:"Check 2", title:"Check your progress 2 (Units 4–6)", from:["u4","u5","u6"], color:"#334155", icon:"⭐", page:112},
+ {id:"c3", n:"Check 3", title:"Check your progress 3 (Units 7–9)", from:["u7","u8","u9"], color:"#334155", icon:"⭐", page:162}
+];
+
+// Picture dictionary words for the listening game
+const WORDS = "📅 calendar|🕐 clock|📖 book|✏️ pencil|🎒 backpack|🔑 key|🧢 hat|🕶️ sunglasses|☂️ umbrella|🐙 octopus|🍎 apple|🐛 insect|🚢 ship|🍟 chips|👮 police officer|🧑‍🚒 firefighter|🧑‍⚕️ nurse|🧑‍🏫 teacher|🧑‍🍳 baker|🎨 painter|👃 nose|👂 ear|🦶 foot|✋ hand|💪 arm|🦵 leg|👋 wave|👏 clap|🐧 penguin|🦆 duck|🥚 egg|🪶 feather|😨 scared|😴 tired|😠 angry|🤩 excited|☀️ sun|🌙 moon|⭐ star|🌍 Earth|🪁 kite|🌧️ rainy|☁️ cloudy|🧥 raincoat|🐘 elephant|🦁 lion|🐆 cheetah|🦜 parrot|🍌 banana|🔺 triangle|⭕ circle|🟥 square|❤️ heart|📏 ruler|🐜 ant|🐝 bee|🦋 butterfly|🕷️ spider|🕸️ web|🦗 cricket|🍃 leaf|🐕 dog|🐈 cat|🐭 mouse|🌳 tree|🌸 flower|🥭 mango|🍍 pineapple|🥔 potato|🦉 owl|🐄 cow|❄️ snow|🛏️ bed|🛁 bath|🚪 door|🪟 window|🪺 nest|🐇 rabbit|🦫 beaver|🍄 mushroom|🌕 full moon|🚁 helicopter|⛴️ ferry|🚦 traffic light|🌉 bridge|✈️ plane|🎡 Ferris wheel|🦈 shark|🐢 turtle|🪼 jellyfish|🚲 bicycle|🏖️ beach|🏜️ desert"
+ .split("|").map(w=>{const i=w.indexOf(" ");return {e:w.slice(0,i),w:w.slice(i+1)}});
+
+</script>
+<script>
+{
+const $ = s => document.querySelector(s);
+const app = $("#app");
+const SK = {vocab:["Vocabulary","Từ vựng","#3d8bff"], grammar:["Grammar","Ngữ pháp","#7c3aed"], phonics:["Phonics & spelling","Phát âm & chính tả","#ea580c"], reading:["Reading","Đọc hiểu","#16a34a"], listening:["Listening","Nghe","#db2777"]};
+const ADVICE = {
+ vocab:["Look at the Picture dictionary and say the words again.","Ôn lại từ vựng với phần Picture dictionary (trang 164–175) và chơi “Picture words”."],
+ grammar:["Read the Language detective boxes again and make your own sentences.","Xem lại các ô Language detective (ngữ pháp) trong bài, cho con tự đặt câu."],
+ phonics:["Say the words aloud slowly. Listen to the sounds and look at the spelling.","Đọc to, chậm từng từ; chú ý âm và cách viết (bài Words and sounds)."],
+ reading:["Read the story or text again and find the answer in it.","Đọc lại bài đọc/truyện cùng con và tìm câu trả lời trong bài."],
+ listening:["Press 🔊 and listen again. Then say the word.","Bấm 🔊 nghe lại nhiều lần rồi cho con nhắc lại."]};
+let best = {}; try{best = JSON.parse(localStorage.getItem("cge2-best")||"{}")}catch(e){}
+const saveBest = (id,v)=>{ if(!(id in best) || v>best[id]) best[id]=v; try{localStorage.setItem("cge2-best",JSON.stringify(best))}catch(e){} };
+const shuffle = a => { a=a.slice(); for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]} return a };
+const esc = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm = s => String(s).toLowerCase().replace(/[’']/g,"'").replace(/[.,!?]/g,"").replace(/\s+/g," ").trim();
+const pageOf = (u,l) => { if(!u||!u.page||!l) return ""; const n=+String(l).split(".")[1]||1; return u.page + 2*(n-1) + (n>=7?2:0) };
+const stars = v => v==null ? "☆☆☆" : (v>=9?"★★★":v>=7?"★★☆":v>=5?"★☆☆":"☆☆☆");
+
+/* ---------- speech ---------- */
+let voice=null;
+const pickVoice=()=>{try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}catch(e){}};
+try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
+const speak = (t,rate=.85) => { try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t.replace(/_{2,}/g," blank ").replace(/[|]/g,"")); u.lang="en-GB"; if(voice)u.voice=voice; u.rate=rate; speechSynthesis.speak(u);}catch(e){} };
+let actx=null;
+const tone = ok => { try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); const o=actx.createOscillator(),g=actx.createGain(); o.connect(g);g.connect(actx.destination); const t=actx.currentTime;
+ o.frequency.setValueAtTime(ok?660:220,t); if(ok)o.frequency.setValueAtTime(880,t+.12); g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+.35); o.start(t); o.stop(t+.36);}catch(e){} };
+
+/* ---------- pictures ---------- */
+function clockSVG(h,m){ const ha=((h%12)+m/60)*30, ma=m*6; let ticks="";
+ for(let i=1;i<=12;i++){const a=i*30*Math.PI/180; ticks+=`<text x="${100+72*Math.sin(a)}" y="${100-72*Math.cos(a)+7}" font-size="20" text-anchor="middle" fill="#14213d" font-family="Fredoka,sans-serif">${i}</text>`}
+ return `<svg viewBox="0 0 200 200" role="img" aria-label="clock"><circle cx="100" cy="100" r="94" fill="#fff" stroke="#3d8bff" stroke-width="10"/>${ticks}
+ <line x1="100" y1="100" x2="${100+45*Math.sin(ha*Math.PI/180)}" y2="${100-45*Math.cos(ha*Math.PI/180)}" stroke="#14213d" stroke-width="9" stroke-linecap="round"/>
+ <line x1="100" y1="100" x2="${100+66*Math.sin(ma*Math.PI/180)}" y2="${100-66*Math.cos(ma*Math.PI/180)}" stroke="#ff5d5d" stroke-width="6" stroke-linecap="round"/><circle cx="100" cy="100" r="8" fill="#14213d"/></svg>`}
+function shapeSVG(s,c,big){ const k=big?1:.6; let p="";
+ if(s==="triangle")p=`<polygon points="${100},${100-70*k} ${100+80*k},${100+55*k} ${100-80*k},${100+55*k}" fill="${c}"/>`;
+ if(s==="circle")p=`<circle cx="100" cy="100" r="${70*k}" fill="${c}"/>`;
+ if(s==="square")p=`<rect x="${100-65*k}" y="${100-65*k}" width="${130*k}" height="${130*k}" fill="${c}"/>`;
+ if(s==="rectangle")p=`<rect x="${100-85*k}" y="${100-48*k}" width="${170*k}" height="${96*k}" fill="${c}"/>`;
+ return `<svg viewBox="0 0 200 200" role="img" aria-label="shape">${p}</svg>`}
+function prepSVG(pos){ const box=(x)=>`<rect x="${x}" y="95" width="80" height="70" rx="6" fill="#d9a066" stroke="#8a5a2b" stroke-width="4"/><line x1="${x}" y1="115" x2="${x+80}" y2="115" stroke="#8a5a2b" stroke-width="3"/>`;
+ const ball=(x,y)=>`<circle cx="${x}" cy="${y}" r="20" fill="#ff5d5d" stroke="#14213d" stroke-width="3"/><path d="M${x-20} ${y} q20 -12 40 0" stroke="#fff" stroke-width="4" fill="none"/>`;
+ let b="";
+ if(pos==="on") b=box(110)+ball(150,73);
+ if(pos==="under") b=`<rect x="105" y="40" width="90" height="12" fill="#8a5a2b"/><rect x="112" y="52" width="10" height="110" fill="#8a5a2b"/><rect x="178" y="52" width="10" height="110" fill="#8a5a2b"/>`+ball(150,142);
+ if(pos==="next") b=box(80)+ball(195,145);
+ if(pos==="between") b=box(30)+box(190)+ball(150,145);
+ if(pos==="in") b=ball(150,135)+`<path d="M110 115 h80 v50 h-80z" fill="#d9a066" stroke="#8a5a2b" stroke-width="4"/>`;
+ return `<svg viewBox="0 0 300 180" role="img" aria-label="where is the ball"><rect x="0" y="165" width="300" height="15" fill="#9ccf6a"/>${b}</svg>`}
+function shadowSVG(t){ const mid=t==="midday"; const sx=mid?150:40, sy=mid?30:95, len=mid?22:120;
+ return `<svg viewBox="0 0 300 200" role="img" aria-label="sun and shadow"><rect width="300" height="200" fill="#bfe3ff"/><rect y="160" width="300" height="40" fill="#9ccf6a"/>
+ <circle cx="${sx}" cy="${sy}" r="22" fill="#ffd23f"/><ellipse cx="${150+len/2+4}" cy="163" rx="${len/2+6}" ry="6" fill="#2b3a55" opacity=".7"/>
+ <circle cx="150" cy="108" r="12" fill="#ffcc99"/><rect x="141" y="120" width="18" height="28" rx="6" fill="#ff5d5d"/><rect x="143" y="146" width="6" height="16" fill="#14213d"/><rect x="151" y="146" width="6" height="16" fill="#14213d"/>
+ <text x="150" y="194" text-anchor="middle" font-size="15" font-family="Fredoka,sans-serif" fill="#14213d">${mid?"midday":"morning"}</text></svg>`}
+function arrowSVG(d){ const r={right:0,left:180,straight:-90}[d];
+ return `<svg viewBox="0 0 200 200" role="img" aria-label="arrow"><circle cx="100" cy="100" r="90" fill="#16a34a"/><g transform="rotate(${r} 100 100)"><path d="M45 88 h70 v-28 l45 40 l-45 40 v-28 h-70z" fill="#fff"/></g></svg>`}
+function plantSVG(){ return `<svg viewBox="0 0 220 220" role="img" aria-label="plant"><rect y="140" width="220" height="80" fill="#8a5a2b"/>
+ <path d="M110 140 v-80" stroke="#16a34a" stroke-width="8"/><ellipse cx="80" cy="100" rx="26" ry="11" fill="#22c55e" transform="rotate(-25 80 100)"/><ellipse cx="140" cy="90" rx="26" ry="11" fill="#22c55e" transform="rotate(25 140 90)"/>
+ <g fill="#f472b6">${[0,72,144,216,288].map(a=>`<circle cx="${110+14*Math.sin(a*Math.PI/180)}" cy="${48-14*Math.cos(a*Math.PI/180)}" r="11"/>`).join("")}</g><circle cx="110" cy="48" r="8" fill="#ffd23f"/>
+ <path d="M110 140 q-10 25 -35 40 M110 140 q5 30 0 55 M110 140 q15 25 40 35" stroke="#f5deb3" stroke-width="5" fill="none"/>
+ <text x="190" y="188" font-size="22" text-anchor="middle">❓</text><path d="M178 185 L150 176" stroke="#fff" stroke-width="3"/></svg>`}
+function pic(img){
+ if(!img) return "";
+ if(typeof img==="string") return `<div class="pic"><div class="emo">${img}</div></div>`;
+ let h="";
+ if(img.clock) h=clockSVG(...img.clock);
+ else if(img.shape) h=shapeSVG(img.shape,img.color,img.big);
+ else if(img.prep) h=prepSVG(img.prep);
+ else if(img.shadow) h=shadowSVG(img.shadow);
+ else if(img.arrow) h=arrowSVG(img.arrow);
+ else if(img.plant) h=plantSVG();
+ else if(img.text) h=`<div class="read">📖 ${esc(img.text)}</div>`;
+ return `<div class="pic">${h}</div>`}
+
+/* ---------- state ---------- */
+let S = null;
+const allUnits = () => UNITS.concat(REVIEWS);
+const findUnit = id => UNITS.find(u=>u.id===id);
+
+function home(){
+ try{speechSynthesis.cancel()}catch(e){}
+ const card = u => `<button class="unit" data-go="${u.id}"><span class="ic" style="background:${u.color}22">${u.icon}</span><span><b>${u.n}</b><span class="t">${esc(u.title)}</span><span class="stars" aria-label="best score">${stars(best[u.id])}${best[u.id]!=null?` <span style="color:var(--muted)">${best[u.id]}/10</span>`:""}</span></span></button>`;
+ app.innerHTML = `<header><span class="logo">📘</span><div><h1>Global English 2 – Review</h1><p class="sub">Choose a unit. Answer the questions. See your score! <span class="vn">· Chọn bài để ôn tập, chấm điểm và xem phân tích lỗi sai.</span></p></div></header>
+ <div class="grid">${UNITS.map(card).join("")}</div>
+ <h2>Check your progress</h2><div class="grid">${REVIEWS.map(card).join("")}
+ <button class="unit" data-go="words"><span class="ic" style="background:#db277722">🔊</span><span><b>Game</b><span class="t">Picture words – listen and tap</span><span class="stars">${stars(best.words)}${best.words!=null?` <span style="color:var(--muted)">${best.words}/10</span>`:""}</span></span></button></div>
+ <p class="vn" style="margin-top:22px">Mẹo: bấm 🔊 để nghe câu hỏi. Điểm cao nhất của mỗi bài được lưu trên trình duyệt này.</p>`;
+ app.querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>start(b.dataset.go));
+ window.scrollTo(0,0)}
+
+function start(id, retry){
+ let unit, qs;
+ if(id==="words"){ unit={id:"words",n:"Game",title:"Picture words",color:"#db2777"};
+  qs = shuffle(WORDS).slice(0,12).map(w=>({t:"listen",s:"listening",say:w.w,q:"Listen and tap the picture.",o:[w].concat(shuffle(WORDS.filter(x=>x.w!==w.w)).slice(0,3)).map(x=>x.e+"|"+x.w),e:`You heard “${w.w}”.`}));
+ } else if(id[0]==="c"){ unit=REVIEWS.find(r=>r.id===id);
+  qs = shuffle(unit.from.flatMap(u=>findUnit(u).q.map(q=>({...q,u})))).slice(0,15);
+ } else { unit=findUnit(id); qs=shuffle(unit.q.map(q=>({...q,u:id}))) }
+ if(retry) qs = shuffle(retry);
+ qs = qs.map(q=>{ const c={...q}; if(c.t==="mc"||c.t==="listen"){c.right=c.o[0]; c.opts=shuffle(c.o)} if(c.t==="tf"){c.right=c.o[c.a]; c.opts=c.o}
+  if(c.t==="order"){const sp=c.split||" "; c.parts=c.a.split(sp).map(x=>x.trim()); c.right=c.parts.join(sp===" "?" ":" → "); let sh; do{sh=shuffle(c.parts)}while(c.parts.length>1&&sh.join()==c.parts.join()); c.pool=sh}
+  if(c.t==="fill") c.right=c.a[0]; return c});
+ S={unit,qs,i:0,ans:[],retry:!!retry}; question()}
+
+function question(){
+ const q=S.qs[S.i], n=S.qs.length, u=S.unit;
+ const isPic = (q.opts||[]).some(o=>o.includes("|"));
+ const optHTML = o => { const [e,w]=o.includes("|")?o.split("|"):[null,o];
+  return e ? `<button class="opt" data-v="${esc(o)}"><span class="e">${e}</span><span class="w ${q.t==="listen"?"hidden":""}">${esc(w)}</span></button>` : `<button class="opt" data-v="${esc(o)}">${esc(o)}</button>` };
+ let body="";
+ if(q.t==="listen") body = `<div class="pic"><button class="big-listen" id="play" aria-label="play sound">🔊</button></div>`;
+ else body = pic(q.img);
+ if(q.t==="mc"||q.t==="tf"||q.t==="listen") body += `<div class="opts ${isPic?"pics":""}">${q.opts.map(optHTML).join("")}</div>`;
+ if(q.t==="fill") body += `<form class="fillrow" id="ff"><input id="fin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type here…" aria-label="your answer"><button class="main" type="submit">Check</button></form>`;
+ if(q.t==="order") body += `<div class="tiles ans" id="ans" aria-label="your answer"></div><div class="tiles" id="pool">${q.pool.map((p,k)=>`<button class="tile" data-k="${k}">${esc(p)}</button>`).join("")}</div><div class="next" style="justify-content:flex-start"><button class="main" id="chk" disabled>Check</button></div>`;
+ app.innerHTML = `<div class="top"><button class="ghost" id="back" aria-label="home">🏠</button><div class="bar"><i style="width:${S.i/n*100}%"></i></div><span class="count">${S.i+1} / ${n}</span></div>
+ <div class="card"><p class="sub" style="margin:0 0 6px">${esc(u.n)} · ${esc(u.title)}${q.l?` · Lesson ${q.l}`:""}</p>
+ <div class="qtext"><button class="say" id="rq" aria-label="read question">🔊</button><span>${esc(q.q)}</span></div>${body}
+ <div class="fb" id="fb"></div><div class="next hidden" id="nx"><button class="main" id="nb">${S.i+1<n?"Next ➜":"See my score 🏁"}</button></div></div>`;
+ $("#back").onclick=home;
+ $("#rq").onclick=()=>speak(q.q+(q.t==="mc"||q.t==="tf"?". "+q.opts.map(o=>o.split("|").pop()).join(". "):""));
+ if(q.t==="listen"){ $("#play").onclick=()=>speak(q.say,.8); setTimeout(()=>speak(q.say,.8),350) }
+ app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(b.dataset.v,b));
+ if(q.t==="fill"){ const f=$("#fin"); f.focus(); $("#ff").onsubmit=e=>{e.preventDefault(); if(f.value.trim()) answer(f.value.trim())} }
+ if(q.t==="order"){ const ans=$("#ans"),pool=$("#pool"),chk=$("#chk");
+  const upd=()=>chk.disabled=pool.querySelectorAll(".tile").length>0;
+  app.querySelectorAll(".tile").forEach(t=>t.onclick=()=>{ if(t.disabled)return; (t.parentNode===pool?ans:pool).appendChild(t); upd() });
+  chk.onclick=()=>answer([...ans.querySelectorAll(".tile")].map(t=>t.textContent).join(q.split?" → ":" ")) }
+ $("#nb").onclick=()=>{ S.i++; S.i<S.qs.length?question():result() };
+ window.scrollTo(0,0)}
+
+function answer(v,btn){
+ const q=S.qs[S.i]; let ok;
+ if(q.t==="fill") ok=q.a.some(a=>norm(a)===norm(v));
+ else if(q.t==="order") ok=norm(v)===norm(q.right);
+ else ok=v===q.right;
+ S.ans.push({q,given:v,ok});
+ app.querySelectorAll(".opt,.tile,#chk,#fin,#ff button").forEach(b=>b.disabled=true);
+ app.querySelectorAll(".opt").forEach(b=>{ if(b.dataset.v===q.right)b.classList.add("ok"); else if(b===btn)b.classList.add("bad"); const w=b.querySelector(".w"); if(w)w.classList.remove("hidden") });
+ if(q.t==="fill") $("#fin").style.borderColor=ok?"var(--ok)":"var(--bad)";
+ const shown = q.right.includes("|")?q.right.split("|")[1]:q.right;
+ const fb=$("#fb"); fb.className="fb show pop "+(ok?"ok":"bad");
+ fb.innerHTML = ok ? `<strong>✅ ${shuffle(["Great job!","Well done!","Super!","Excellent!","You got it!"])[0]}</strong><div>${esc(q.e||"")}</div>`
+  : `<strong>❌ Not quite.</strong><div>The answer is: <b>${esc(shown)}</b></div><div>${esc(q.e||"")}</div>`;
+ tone(ok); $("#nx").classList.remove("hidden"); $("#nb").focus({preventScroll:true});
+ fb.scrollIntoView({behavior:"smooth",block:"nearest"})}
+
+function result(){
+ const n=S.ans.length, c=S.ans.filter(a=>a.ok).length, sc=Math.round(c/n*100)/10, pct=Math.round(c/n*100);
+ if(!S.retry) saveBest(S.unit.id, sc);
+ const by={}; S.ans.forEach(a=>{const k=a.q.s; by[k]=by[k]||{c:0,n:0}; by[k].n++; if(a.ok)by[k].c++});
+ const skills=Object.keys(SK).filter(k=>by[k]);
+ const weak=skills.filter(k=>by[k].c/by[k].n<.75).sort((a,b)=>by[a].c/by[a].n-by[b].c/by[b].n);
+ const [msg,vn,col] = sc>=9?["Excellent! You are a star! 🌟","Xuất sắc! Con nắm bài rất chắc.","#16a34a"]: sc>=7?["Good work! 👍","Tốt! Còn vài chỗ cần ôn lại.","#3d8bff"]: sc>=5?["Nice try! Keep practising. 💪","Khá – cần luyện thêm các phần bên dưới.","#f59e0b"]:["Let's review and try again! 📚","Cần ôn lại bài cùng con rồi làm lại.","#e11d48"];
+ const R=95, C=2*Math.PI*R;
+ const wrong=S.ans.filter(a=>!a.ok);
+ const lessons=[...new Set(wrong.map(a=>a.q.u+"|"+(a.q.l||"")))].filter(x=>!x.endsWith("|"));
+ app.innerHTML = `<div class="top"><button class="ghost" id="back">🏠 Home</button><span class="count">${esc(S.unit.n)} · ${esc(S.unit.title)}</span></div>
+ <div class="card"><div class="res"><div class="ring"><svg viewBox="0 0 220 220"><circle cx="110" cy="110" r="${R}" fill="none" stroke="var(--soft)" stroke-width="22"/><circle cx="110" cy="110" r="${R}" fill="none" stroke="${col}" stroke-width="22" stroke-linecap="round" stroke-dasharray="${C*c/n} ${C}"/></svg><div class="v"><div><b>${sc}</b><small>out of 10</small><small>${c}/${n} correct · ${pct}%</small></div></div></div>
+ <div><h1 style="font-size:clamp(26px,4vw,36px)">${msg}</h1><p class="vn" style="font-size:17px">${vn}</p><div style="font-size:34px;color:#f59e0b">${stars(sc)}</div></div></div>
+ <h2>Skills <span class="vn">· Kết quả theo kỹ năng</span></h2>
+ ${skills.map(k=>{const p=Math.round(by[k].c/by[k].n*100);return `<div class="skill"><span>${SK[k][0]}<br><span class="vn">${SK[k][1]}</span></span><span class="track"><i style="width:${p}%;background:${p>=75?"var(--ok)":p>=50?"#f59e0b":"var(--bad)"}"></i></span><span class="pc">${by[k].c}/${by[k].n}</span></div>`}).join("")}
+ <div class="advice"><b>What to practise · Nhận xét cho phụ huynh</b>
+ ${weak.length? weak.map(k=>`<p style="margin:8px 0">• <b>${SK[k][0]}</b> (${by[k].c}/${by[k].n}): ${ADVICE[k][0]}<br><span class="vn">${SK[k][1]}: ${ADVICE[k][1]}</span></p>`).join("") : `<p style="margin:8px 0">All skills are strong. Try another unit! <br><span class="vn">Tất cả kỹ năng đều tốt (≥75%). Có thể chuyển sang bài tiếp theo.</span></p>`}
+ ${lessons.length?`<p style="margin:8px 0">📖 Review these lessons in the book: <b>${lessons.map(x=>{const [u,l]=x.split("|");const p=pageOf(findUnit(u),l);return `Lesson ${l}${p?` (p.${p})`:""}`}).join(", ")}</b><br><span class="vn">Nên mở sách ôn lại các bài trên.</span></p>`:""}</div>
+ ${wrong.length?`<h2>Mistakes (${wrong.length}) <span class="vn">· Các câu sai</span></h2>`+wrong.map(a=>{const q=a.q; const g=String(a.given).includes("|")?a.given.split("|")[1]:a.given; const r=q.right.includes("|")?q.right.split("|")[1]:q.right;
+  return `<div class="mist"><div><b>${esc(q.q)}</b></div><div class="row"><span class="chip r">Your answer: ${esc(g)}</span><span class="chip g">Correct: ${esc(r)}</span><span class="chip">${SK[q.s][0]}${q.l?` · Lesson ${q.l}`:""}</span></div><div style="margin-top:6px">💡 ${esc(q.e||"")}</div></div>`}).join(""):`<h2>No mistakes! 🎉</h2>`}
+ <div class="btns">${wrong.length?`<button class="main" id="redo">Practise my mistakes</button>`:""}<button class="ghost" id="again">Try the whole quiz again</button><button class="ghost" id="home2">Choose another unit</button></div></div>`;
+ $("#back").onclick=home; $("#home2").onclick=home;
+ $("#again").onclick=()=>start(S.unit.id);
+ if(wrong.length) $("#redo").onclick=()=>{ const id=S.unit.id; start(id, wrong.map(a=>{const {right,opts,parts,pool,...rest}=a.q; return rest})); };
+ if(sc>=9) speak("Excellent! You are a star!",1); else speak("You got "+c+" out of "+n,1);
+ window.scrollTo(0,0)}
+
+home();
+}
+
+</script>
+</body>
+</html>
