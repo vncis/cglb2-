@@ -104,6 +104,7 @@ h2{font-size:24px;margin:26px 0 10px}
 .diff{font-size:20px;margin:4px 0;display:flex;flex-wrap:wrap;gap:3px;align-items:center}
 .diff b{display:inline-grid;place-items:center;min-width:26px;height:32px;border-radius:6px;font-weight:600}
 .lg{background:var(--okbg);color:var(--ok)}.lb{background:#fecdd3;color:#be123c}
+.plist{display:grid;gap:10px}.part{min-height:72px;border:3px solid var(--line);box-shadow:none}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
 .pop{animation:pop .35s}
@@ -1473,7 +1474,20 @@ function start(id, retry){
  qs = qs.map(q=>{ const c={...q}; if(c.t==="mc"||c.t==="listen"){c.right=c.o[0]; c.opts=shuffle(c.o)} if(c.t==="tf"){c.right=c.o[c.a]; c.opts=c.o} if(c.t==="bank"){c.right=c.ans; c.opts=c.o}
   if(c.t==="order"){const sp=c.split||" "; c.parts=c.a.split(sp).map(x=>x.trim()); c.right=c.parts.join(sp===" "?" ":" → "); let sh; do{sh=shuffle(c.parts)}while(c.parts.length>1&&sh.join()==c.parts.join()); c.pool=sh}
   if(c.t==="fill") c.right=c.a[0]; return c});
- S={unit,qs,i:0,ans:[],retry:!!retry}; question()}
+ S={unit,qs,i:0,ans:[],retry:!!retry};
+ if(id[0]==="w"&&!retry) return partMenu(); question()}
+
+function partMenu(){
+ const parts=[]; S.qs.forEach(q=>{ let p=parts.find(x=>x.h===q.sec); if(!p) parts.push(p={h:q.sec,n:0}); p.n++ });
+ const all=S.qs.slice();
+ app.innerHTML=`<div class="top"><button class="ghost" id="back">🏠 Home</button><span class="count">${esc(S.unit.n)} · ${esc(S.unit.title)}</span></div>
+ <div class="card"><h1 style="font-size:clamp(24px,4vw,32px)">Workbook revision</h1><p class="vn" style="font-size:17px">Chọn làm cả đề, hoặc bấm vào từng phần để làm riêng phần đó.</p>
+ <button class="main" id="allp" style="width:100%;margin:8px 0 16px">▶ Do the whole test · Làm cả đề (${all.length} câu)</button>
+ <div class="plist">${parts.map((p,k)=>`<button class="unit part" data-k="${k}"><span class="ic" style="background:${S.unit.color}22">${p.h.includes("Spelling")?"⌨️":p.h.includes("Read")?"📖":p.h.includes("Vocabulary")?"🔤":p.h.includes("Odd")?"🧩":"✏️"}</span><span><span class="t">${esc(p.h)}</span><b>${p.n} questions${p.h.includes("Spelling")?" · gõ từ":""}</b></span></button>`).join("")}</div></div>`;
+ $("#back").onclick=home;
+ $("#allp").onclick=()=>{ S.qs=all; S.i=0; S.ans=[]; S.retry=false; question() };
+ app.querySelectorAll(".part").forEach(b=>b.onclick=()=>{ const h=parts[+b.dataset.k].h; S.qs=all.filter(q=>q.sec===h); S.i=0; S.ans=[]; S.retry=true; question() });
+ window.scrollTo(0,0)}
 
 function question(){
  const q=S.qs[S.i], n=S.qs.length, u=S.unit;
