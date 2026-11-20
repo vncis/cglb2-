@@ -99,6 +99,11 @@ h2{font-size:24px;margin:26px 0 10px}
 .vi{font-size:18px;background:var(--card);border-radius:12px;padding:8px 12px;margin:6px 0}
 .why{margin-top:8px}
 .sayl{color:inherit}
+.spellhint{display:grid;gap:6px;margin-bottom:12px}
+.hintw{font-size:clamp(24px,6vw,32px);letter-spacing:2px;font-weight:600;white-space:pre-wrap}
+.diff{font-size:20px;margin:4px 0;display:flex;flex-wrap:wrap;gap:3px;align-items:center}
+.diff b{display:inline-grid;place-items:center;min-width:26px;height:32px;border-radius:6px;font-weight:600}
+.lg{background:var(--okbg);color:var(--ok)}.lb{background:#fecdd3;color:#be123c}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
 .pop{animation:pop .35s}
@@ -1421,6 +1426,8 @@ function fullSentence0(q){
 
 const fullSentence=q=>{const s=fullSentence0(q);return s.charAt(0).toUpperCase()+s.slice(1)};
 
+function spellDiff(g,r){ g=String(g).toLowerCase(); r=r.toLowerCase(); const n=Math.max(g.length,r.length); let h="";
+ for(let i=0;i<n;i++){ const c=g[i]; if(c===undefined) h+=`<b class="lb">_</b>`; else h+=`<b class="${c===r[i]?"lg":"lb"}">${c===" "?"&nbsp;":esc(c)}</b>` } return h }
 /* ---------- state ---------- */
 let S = null;
 const allUnits = () => UNITS.concat(REVIEWS);
@@ -1443,13 +1450,22 @@ function start(id, retry){
  if(id==="words"){ unit={id:"words",n:"Game",title:"Picture words",color:"#db2777"};
   qs = shuffle(WORDS).slice(0,12).map(w=>({id:"word:"+w.w,t:"listen",s:"listening",say:w.w,q:"Listen and tap the picture.",o:[w].concat(shuffle(WORDS.filter(x=>x.w!==w.w)).slice(0,3)).map(x=>x.e+"|"+x.w),e:`You heard “${w.w}”.`}));
  } else if(id[0]==="w"){ unit=WB.find(w=>w.id===id); qs=[]; let wi=0;
-  unit.secs.forEach((sec,si)=>sec.q.forEach(it=>{ const t=it.t||({bank:"bank",odd:"mc",mc:"mc",fill:"fill",tf:"tf",order:"order"}[sec.k]);
+  unit.secs.forEach((sec,si)=>{ sec.q.forEach(it=>{ const t=it.t||({bank:"bank",odd:"mc",mc:"mc",fill:"fill",tf:"tf",order:"order"}[sec.k]);
    const base={...it, s:it.s||sec.s, sec:sec.h, si, ins:sec.i, passage:sec.passage, u:id, id:id+"-"+(wi++)};
    if(t==="bank"){ base.t="bank"; base.ans=it.a; base.o=sec.bank; base.e=it.e||`“${it.a}”: ${it.q}`; }
    else if(sec.k==="odd"&&!it.t){ base.t="mc"; base.odd=1; base.q="Which word is the odd one out?"; }
    else if(t==="tf"){ base.t="tf"; base.o=["True","False"]; base.a=it.a?0:1; }
    else base.t=t;
-   qs.push(base) }));
+   qs.push(base) });
+   if(sec.k==="bank"){ sec.q.forEach((it,k)=>{ const w=it.a, vi=((TR[id+"-"+k]||[])[1]||"").split(":")[0].split("=").pop().trim();
+     const hint=w.split("").map((ch,j)=>ch===" "?"  ":(j===0?ch:"_")).join(" ");
+     const sid=id+"-sp"+k; TR[sid]=[w.charAt(0).toUpperCase()+w.slice(1)+": "+it.q.replace(/…$/,w+"."), w+" = "+vi];
+     qs.push({t:"fill",spell:1,s:"phonics",sec:"Spelling – type the word",si:si+.5,ins:"Look, read and type the word. Gõ từ tiếng Anh.",u:id,id:sid,
+       q:it.q, vi, hint:`${hint}  (${w.replace(/ /g,"").length} letters)`, img:it.img, a:[w], say:w,
+       e:`Spell it: ${w.toUpperCase().split("").join(" ")}`}) }) }
+  });
+  { let n=0, last=null; const R=["I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"];
+    qs.forEach(q=>{ if(q.si!==last){last=q.si;n++} q.sec=R[n-1]+". "+q.sec.replace(/^[IVX]+\.\s*/,"") }) }
  } else if(id[0]==="c"){ unit=REVIEWS.find(r=>r.id===id);
   qs = shuffle(unit.from.flatMap(u=>findUnit(u).q.map((q,i)=>({...q,u,id:u+"-"+i})))).slice(0,15);
  } else { unit=findUnit(id); qs=shuffle(unit.q.map((q,i)=>({...q,u:id,id:id+"-"+i}))) }
@@ -1469,6 +1485,7 @@ function question(){
  else body = (q.passage?`<details class="passage" open><summary>📖 Read the text <button class="say sm" id="rp" type="button" aria-label="read the text aloud">🔊</button></summary><p>${esc(q.passage).replace(/\n/g,"<br>")}</p></details>`:"") + pic(q.img);
  if(q.t==="bank") body += `<div class="bank">${q.opts.map(o=>`<button class="opt chipopt" data-v="${esc(o)}">${esc(o)}</button>`).join("")}</div>`;
  if(q.t==="mc"||q.t==="tf"||q.t==="listen") body += `<div class="opts ${isPic?"pics":""}">${q.opts.map(optHTML).join("")}</div>`;
+ if(q.spell) body += `<div class="spellhint"><div class="hintw" aria-label="letter hint">${esc(q.hint)}</div><div class="vn" style="font-size:17px">🇻🇳 Nghĩa: <b>${esc(q.vi)}</b></div><button class="trbtn" id="hear" type="button">🔊 Hear the word</button></div>`;
  if(q.t==="fill") body += `<form class="fillrow" id="ff"><input id="fin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type here…" aria-label="your answer"><button class="main" type="submit">Check</button></form>`;
  if(q.t==="order") body += `<div class="tiles ans" id="ans" aria-label="your answer"></div><div class="tiles" id="pool">${q.pool.map((p,k)=>`<button class="tile" data-k="${k}">${esc(p)}</button>`).join("")}</div><div class="next" style="justify-content:flex-start"><button class="main" id="chk" disabled>Check</button></div>`;
  app.innerHTML = `<div class="top"><button class="ghost" id="back" aria-label="home">🏠</button><div class="bar"><i style="width:${S.i/n*100}%"></i></div><span class="count">${S.i+1} / ${n}</span></div>
@@ -1482,6 +1499,7 @@ function question(){
  let sel=null;
  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ if(b.disabled)return; app.querySelectorAll(".opt.sel").forEach(x=>x.classList.remove("sel")); b.classList.add("sel"); sel=b; $("#cf").disabled=false; $("#cfhint").textContent="Sure? Press Check ✓ · Có thể chọn lại trước khi bấm Check."; });
  if($("#cf")) $("#cf").onclick=()=>{ if(sel){ $("#cfrow").classList.add("hidden"); answer(sel.dataset.v,sel);} };
+ if(q.spell) $("#hear").onclick=()=>speak(q.say,.7);
  if(q.t==="fill"){ const f=$("#fin"); f.focus(); $("#ff").onsubmit=e=>{e.preventDefault(); if(f.value.trim()) answer(f.value.trim())} }
  if(q.t==="order"){ const ans=$("#ans"),pool=$("#pool"),chk=$("#chk");
   const upd=()=>chk.disabled=pool.querySelectorAll(".tile").length>0;
@@ -1505,6 +1523,7 @@ function answer(v,btn){
  const tr=TR[q.id]||[], en=tr[0]||fullSentence(q), vi=tr[1]||(String(q.id).startsWith("word:")?WORDS_VI[q.say]:"")||"";
  fb.innerHTML = (ok ? `<strong>✅ ${shuffle(["Great job!","Well done!","Super!","Excellent!","You got it!"])[0]}</strong>`
   : `<strong>❌ Not quite.</strong><div>The answer is: <b>${esc(shown)}</b></div>`)
+  + (q.spell&&!ok?`<div class="diff"><span style="flex-basis:100%;font-size:16px">Your spelling:</span>${spellDiff(v,q.a[0])}</div><div class="diff"><span style="flex-basis:100%;font-size:16px">Correct:</span>${q.a[0].split("").map(c=>`<b class="lg">${c===" "?"&nbsp;":esc(c)}</b>`).join("")}</div>`:"")
   + `<div class="full"><button class="say sm" id="sayfull" aria-label="read the full sentence">🔊</button><span>${esc(en)}</span></div>`
   + (vi?`<button class="trbtn" id="trb">🇻🇳 Dịch sang tiếng Việt</button><div class="vi hidden" id="vi">${esc(vi)}</div>`:"")
   + (q.t==="bank"?"":`<div class="why">💡 ${esc(q.e||"")}</div>`);
