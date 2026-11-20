@@ -85,6 +85,13 @@ h2{font-size:24px;margin:26px 0 10px}
 .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
 .hidden{display:none}
 @media(max-width:600px){.res{grid-template-columns:1fr}.ring{width:180px;height:180px}.skill{grid-template-columns:6.5em minmax(0,1fr) 3em}}
+.bank{display:flex;flex-wrap:wrap;gap:8px}
+.chipopt{min-height:48px;padding:6px 14px;font-size:18px;border-radius:14px;text-align:center}
+.sech{margin:0 0 10px;font-weight:600;color:var(--acc)}.sech span{color:var(--muted);font-weight:400}
+.passage{background:var(--soft);border-radius:18px;padding:12px 16px;margin-bottom:14px;border-left:6px solid var(--acc)}
+.passage summary{font-weight:600;cursor:pointer;display:flex;align-items:center;gap:10px;min-height:44px}
+.passage p{margin:6px 0 4px;font-size:18px;line-height:1.6}
+.say.sm{width:40px;height:40px;font-size:18px;background:var(--card)}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
 .pop{animation:pop .35s}
@@ -311,6 +318,458 @@ const REVIEWS = [
 const WORDS = "📅 calendar|🕐 clock|📖 book|✏️ pencil|🎒 backpack|🔑 key|🧢 hat|🕶️ sunglasses|☂️ umbrella|🐙 octopus|🍎 apple|🐛 insect|🚢 ship|🍟 chips|👮 police officer|🧑‍🚒 firefighter|🧑‍⚕️ nurse|🧑‍🏫 teacher|🧑‍🍳 baker|🎨 painter|👃 nose|👂 ear|🦶 foot|✋ hand|💪 arm|🦵 leg|👋 wave|👏 clap|🐧 penguin|🦆 duck|🥚 egg|🪶 feather|😨 scared|😴 tired|😠 angry|🤩 excited|☀️ sun|🌙 moon|⭐ star|🌍 Earth|🪁 kite|🌧️ rainy|☁️ cloudy|🧥 raincoat|🐘 elephant|🦁 lion|🐆 cheetah|🦜 parrot|🍌 banana|🔺 triangle|⭕ circle|🟥 square|❤️ heart|📏 ruler|🐜 ant|🐝 bee|🦋 butterfly|🕷️ spider|🕸️ web|🦗 cricket|🍃 leaf|🐕 dog|🐈 cat|🐭 mouse|🌳 tree|🌸 flower|🥭 mango|🍍 pineapple|🥔 potato|🦉 owl|🐄 cow|❄️ snow|🛏️ bed|🛁 bath|🚪 door|🪟 window|🪺 nest|🐇 rabbit|🦫 beaver|🍄 mushroom|🌕 full moon|🚁 helicopter|⛴️ ferry|🚦 traffic light|🌉 bridge|✈️ plane|🎡 Ferris wheel|🦈 shark|🐢 turtle|🪼 jellyfish|🚲 bicycle|🏖️ beach|🏜️ desert"
  .split("|").map(w=>{const i=w.indexOf(" ");return {e:w.slice(0,i),w:w.slice(i+1)}});
 
+// Workbook revision worksheets (one per unit), modelled on the school "REVISION" sheet.
+// Section kinds: bank (choose word from the box), odd (odd one out, o[0] correct), mc (o[0] correct),
+// fill (a = accepted answers; c:1 = answer must CONTAIN one of them), tf (a: true/false), order.
+const WB = [
+{id:"w1",n:"Unit 1",title:"A day at school",color:"#3d8bff",icon:"🏫",wp:10,secs:[
+ {h:"I. Vocabulary",i:"Read the description. Choose the word from the box.",k:"bank",s:"vocab",
+  bank:["calendar","clock","tablet","title","author","chapter","contents","characters","uniform","vowels","backpack","homework"],q:[
+  {q:"It shows the days and months of the year.",a:"calendar",img:"📅"},
+  {q:"It tells us the time.",a:"clock",img:"🕐"},
+  {q:"The name of a book or story.",a:"title",img:"📕"},
+  {q:"The person who writes a book.",a:"author",img:"✍️"},
+  {q:"A book is divided into these parts.",a:"chapter",img:"📖"},
+  {q:"The page at the start of a book that tells you what is inside.",a:"contents",img:"📑"},
+  {q:"The people or animals in a story.",a:"characters",img:"🐻👧"},
+  {q:"Special clothes children wear at school.",a:"uniform",img:"👔"},
+  {q:"a, e, i, o and u are these letters.",a:"vowels",img:"🔤"},
+  {q:"A bag you carry on your back.",a:"backpack",img:"🎒"}]},
+ {h:"II. Odd one out",i:"Which word does not belong?",k:"odd",s:"vocab",q:[
+  {o:["September","Monday","Friday","Sunday"],e:"September is a month. The others are days of the week."},
+  {o:["banana","apple","insect","octopus"],e:"banana starts with a consonant. The others start with a vowel."},
+  {o:["lunch","crayons","markers","paint"],e:"Crayons, markers and paint are art materials. Lunch is food."},
+  {o:["table","mine","yours","his"],e:"mine, yours and his tell who something belongs to."},
+  {o:["chips","ship","shell","sheep"],e:"chips starts with ch. The others start with sh."}]},
+ {h:"III. Choose the correct answer",k:"mc",s:"grammar",q:[
+  {q:"It's ___ apple.",img:"🍎",o:["an","a"],e:"We use an before a word that begins with a vowel: an apple."},
+  {q:"It's ___ banana.",img:"🍌",o:["a","an"],e:"We use a before a word that begins with a consonant: a banana."},
+  {q:"This box belongs to me. This box is ___.",img:"📦",o:["mine","my","me"],e:"my box = mine."},
+  {q:"Whose box is this? It's ___ box. (Nick)",img:"🧒📦",o:["Nick's","Nick","Nicks"],e:"Add 's to show who something belongs to: Nick's box."},
+  {q:"Which one is Lucy's box? — The ___ with stars.",img:"⭐📦",o:["one","ones","it"],e:"The one = the box."},
+  {q:"What time is it?",img:{clock:[11,0]},o:["It's eleven o'clock.","It's one o'clock.","It's twelve o'clock."],e:"The short hand points to 11."},
+  {q:"What time is it?",img:{clock:[4,0]},o:["It's four o'clock.","It's eight o'clock.","It's twelve o'clock."],e:"The short hand points to 4."}]},
+ {h:"IV. Complete with the correct verb",i:"Write the verb with -s when it is about one person.",k:"fill",s:"grammar",q:[
+  {q:"Marco ___ every Tuesday. (sing)",img:"🎤",a:["sings"],e:"Marco is one person: sing + s = sings."},
+  {q:"The children ___ books. (read)",img:"📚",a:["read"],e:"The children = many people, so no -s."},
+  {q:"Fernando ___ home at two o'clock. (go)",img:"🏠",a:["goes"],e:"go → goes (add -es)."},
+  {q:"Li Wei ___ paint in art class. (use)",img:"🎨",a:["uses"],e:"Li Wei is one person: uses."},
+  {q:"She ___ a red backpack. (have)",img:"🎒",a:["has"],e:"have → has with he / she / it."}]},
+ {h:"V. Missing letters: sh, ch, th",i:"Write the missing letters.",k:"fill",s:"phonics",q:[
+  {q:"fi__",img:"🐟",a:["sh"],e:"fish ends with sh."},
+  {q:"__irty (30)",img:"3️⃣0️⃣",a:["th"],e:"thirty starts with th."},
+  {q:"__ildren",img:"👧👦",a:["ch"],e:"children starts with ch."},
+  {q:"__eese",img:"🧀",a:["ch"],e:"cheese starts with ch."},
+  {q:"__umb",img:"👍",a:["th"],e:"thumb starts with th."}]},
+ {h:"VI. Writing tips",k:"mc",s:"grammar",q:[
+  {q:"Which sentence is written correctly?",o:["My book is about a lion.","my book is about a lion.","My book is about a lion"],e:"Start with a capital letter and end with a full stop."},
+  {t:"order",q:"Put the words in order to make a sentence.",a:"Amy has a red backpack",e:"A name (Amy) begins with a capital letter."}]},
+ {h:"VII. Read and answer",k:"mc",s:"reading",passage:"My name is Fernando. I live in Cebu, in the Philippines. My school is Oceanside Primary School and my teacher is Ms Cruz. In my classroom there are tables, chairs and a big world map. In science class we learn about electricity. We use batteries and wires to turn on a light bulb. At break time I go outside and eat dried mango. At two o'clock I tidy my desk, put my homework in my backpack and go home.",q:[
+  {t:"tf",q:"Fernando lives in Mexico.",a:false,e:"He lives in Cebu, in the Philippines."},
+  {t:"tf",q:"Fernando's teacher is Ms Cruz.",a:true,e:"'My teacher is Ms Cruz.'"},
+  {t:"tf",q:"In science class they learn about plants.",a:false,e:"They learn about electricity."},
+  {t:"tf",q:"Fernando eats dried mango at break time.",a:true,e:"'At break time I go outside and eat dried mango.'"},
+  {t:"tf",q:"Fernando goes home at three o'clock.",a:false,e:"He goes home at two o'clock."},
+  {t:"fill",q:"What is the name of Fernando's school?",a:["oceanside"],c:1,e:"Oceanside Primary School."},
+  {t:"fill",q:"Where does Fernando go at break time?",a:["outside"],c:1,e:"He goes outside."},
+  {t:"fill",q:"There is a big ______ ______ in the classroom. (2 words)",a:["world map"],e:"'…and a big world map.'"},
+  {t:"fill",q:"They use batteries and wires to turn on a ______ ______. (2 words)",a:["light bulb","lightbulb"],e:"'…to turn on a light bulb.'"},
+  {t:"fill",q:"At break time Fernando eats ______ ______. (2 words)",a:["dried mango"],e:"'…eat dried mango.'"}]}
+]},
+{id:"w2",n:"Unit 2",title:"Good neighbours",color:"#16a34a",icon:"🏘️",wp:24,secs:[
+ {h:"I. Vocabulary",i:"Read the description. Choose the word from the box.",k:"bank",s:"vocab",
+  bank:["firefighter","nurse","reporter","police officer","bus driver","window cleaner","baker","sailor","farmer","painter","neighbour","continent"],q:[
+  {q:"This person puts out fires.",a:"firefighter",img:"🔥"},
+  {q:"This person helps people who are sick.",a:"nurse",img:"🤒"},
+  {q:"This person asks questions and writes the news.",a:"reporter",img:"🎤📰"},
+  {q:"This person drives a bus.",a:"bus driver",img:"🚌"},
+  {q:"This person cleans windows.",a:"window cleaner",img:"🪟"},
+  {q:"I make bread. I am a …",a:"baker",img:"🍞"},
+  {q:"I work on boats. I am a …",a:"sailor",img:"⛵"},
+  {q:"I grow and sell vegetables. I am a …",a:"farmer",img:"🥕"},
+  {q:"I make pretty pictures. I am a …",a:"painter",img:"🖼️"},
+  {q:"A very big area of land, like Africa or Asia.",a:"continent",img:"🌍"}]},
+ {h:"II. Odd one out",k:"odd",s:"vocab",q:[
+  {o:["pizza","helmet","gloves","mask"],e:"A firefighter wears a helmet, gloves and a mask. Pizza is food."},
+  {o:["Africa","Mexico","Kenya","China"],e:"Africa is a continent. The others are countries."},
+  {o:["sing","teacher","singer","actor"],e:"sing is an action. The others are jobs."},
+  {o:["four","first","second","third"],e:"first, second, third are ordinal numbers. four is not."},
+  {o:["dog","nurse","bird","girl"],e:"nurse, bird and girl have the same sound: ur / ir."}]},
+ {h:"III. Where are they?",i:"Choose the correct word: next to, between, on, under.",k:"mc",s:"grammar",q:[
+  {q:"The ball is ___ the box.",img:{prep:"next"},o:["next to","under","on"],e:"The ball is beside the box."},
+  {q:"The ball is ___ the boxes.",img:{prep:"between"},o:["between","on","under"],e:"There is a box on each side."},
+  {q:"The ball is ___ the table.",img:{prep:"under"},o:["under","on","between"],e:"The ball is below the table."},
+  {q:"The ball is ___ the box.",img:{prep:"on"},o:["on","under","next to"],e:"The ball is on top of the box."},
+  {q:"The cat is ___ the farmer's shoulder.",img:"🧑‍🌾🐈",o:["on","under","between"],e:"The cat sits on top of his shoulder."},
+  {q:"Which way?",img:{arrow:"left"},o:["Turn left.","Turn right.","Go straight ahead."],e:"The arrow points left."}]},
+ {h:"IV. Jobs that end in -er",i:"Write the job.",k:"fill",s:"phonics",q:[
+  {q:"I teach. I am a ______.",img:"🧑‍🏫",a:["teacher"],e:"teach + er = teacher."},
+  {q:"I paint. I am a ______.",img:"🎨",a:["painter"],e:"paint + er = painter."},
+  {q:"I sing. I am a ______.",img:"🎤",a:["singer"],e:"sing + er = singer."},
+  {q:"I dance. I am a ______.",img:"💃",a:["dancer"],e:"dance ends in -e, so we add only -r: dancer."},
+  {q:"I drive a taxi. I am a taxi ______.",img:"🚕",a:["driver"],e:"drive ends in -e, so add -r: driver."}]},
+ {h:"V. Numbers and words",k:"fill",s:"vocab",q:[
+  {q:"3rd = ______",img:"🥉",a:["third"],e:"3rd = third."},
+  {q:"12th = ______",img:"🛗",a:["twelfth"],e:"12th = twelfth (f, not v!)."},
+  {q:"Silvia presses 2 in the lift. She goes to the ______ floor.",img:"2️⃣",a:["second"],e:"2nd = second."},
+  {q:"not helpful = un______",img:"🙅",a:["helpful","unhelpful"],e:"un + helpful = unhelpful."},
+  {t:"order",q:"Put the words in order.",img:"🎤⚽",a:"The reporter is talking to the footballer",e:"Who (The reporter) + is talking + to whom."}]},
+ {h:"VI. Read and answer",k:"mc",s:"reading",passage:"Dear unknown friend,\nMy name is Silvia Lopez and I am eight years old. I live in Merida, a city in Mexico. My family lives in an apartment building, on the second floor. My grandparents live in a very tall building in Mexico City. It is the capital of Mexico. I love pressing the buttons in the lift! I like to travel and meet new friends. Maybe one day we will meet!\nYour friend, Silvia",q:[
+  {t:"tf",q:"Silvia is eight years old.",a:true,e:"'I am eight years old.'"},
+  {t:"tf",q:"Silvia lives in a house.",a:false,e:"She lives in an apartment building."},
+  {t:"tf",q:"Merida is in Mexico.",a:true,e:"'I live in Merida, a city in Mexico.'"},
+  {t:"tf",q:"Silvia's grandparents live in Merida.",a:false,e:"They live in Mexico City."},
+  {t:"tf",q:"Silvia likes pressing the buttons in the lift.",a:true,e:"'I love pressing the buttons in the lift!'"},
+  {t:"fill",q:"Which floor does Silvia's family live on?",a:["second","2nd"],c:1,e:"'…on the second floor.'"},
+  {t:"fill",q:"What is the capital of Mexico?",a:["mexico city"],c:1,e:"Mexico City is the capital."},
+  {t:"fill",q:"My family lives in an ______ ______. (2 words)",a:["apartment building"],e:"'…an apartment building.'"},
+  {t:"fill",q:"I like to travel and meet ______ ______. (2 words)",a:["new friends"],e:"'I like to travel and meet new friends.'"}]}
+]},
+{id:"w3",n:"Unit 3",title:"Ready, steady, go!",color:"#e11d48",icon:"🏃",wp:38,secs:[
+ {h:"I. Vocabulary",i:"Read the description. Choose the word from the box.",k:"bank",s:"vocab",
+  bank:["wave","hop","nod","clap","flap","wiggle","feathers","nest","ostrich","penguin","healthy","boasting"],q:[
+  {q:"Move your hand from side to side to say hello.",a:"wave",img:"👋"},
+  {q:"Jump on one foot.",a:"hop",img:"🦶"},
+  {q:"Move your head up and down to say yes.",a:"nod",img:"🙂"},
+  {q:"Hit your hands together.",a:"clap",img:"👏"},
+  {q:"Move your arms up and down like wings.",a:"flap",img:"🐦"},
+  {q:"Move your fingers quickly a little bit.",a:"wiggle",img:"🖐️"},
+  {q:"All birds have these on their bodies.",a:"feathers",img:"🪶"},
+  {q:"Most birds build this for their eggs.",a:"nest",img:"🪺"},
+  {q:"A very big bird. It can't fly, but it runs very fast.",a:"ostrich",img:"🏃‍♂️💨"},
+  {q:"Always saying 'I am the best!'",a:"boasting",img:"😎"}]},
+ {h:"II. Odd one out",k:"odd",s:"vocab",q:[
+  {o:["apple","nose","toes","tummy"],e:"nose, toes, tummy are parts of the body."},
+  {o:["football","apples","carrots","yogurt"],e:"apples, carrots and yogurt are healthy foods."},
+  {o:["bread","walking","running","dancing"],e:"walking, running and dancing are activities."},
+  {o:["cat","rain","snail","play"],e:"rain, snail, play have the long a sound. cat has a short a."},
+  {o:["duck","penguin","ostrich","kiwi"],e:"A duck can fly. Penguins, ostriches and kiwis can't."}]},
+ {h:"III. Choose the correct answer",k:"mc",s:"reading",q:[
+  {q:"All birds ___ eggs.",img:"🥚",o:["lay","fly","swim"],e:"All birds lay eggs."},
+  {q:"Most birds ___ nests.",img:"🪺",o:["build","eat","swim"],e:"Most birds build nests, but some don't."},
+  {q:"A penguin can't fly, ___ it can swim very fast.",img:"🐧",o:["but","and","or"],e:"but shows something different."},
+  {q:"A kiwi can't fly ___ swim.",img:"🥝🐦",o:["or","but","and"],e:"can't … or … : A kiwi can't fly or swim."},
+  {q:"Can you clap and hop at the same time? — Yes, I ___.",img:"👏",o:["can","can't","am"],e:"Yes, I can. / No, I can't."},
+  {q:"I saw a ___ in the sky.",img:"✈️",o:["plane","plan"],e:"plane (with silent e) flies. plan is an idea."},
+  {q:"How is Bear feeling?",img:"😢🐻",o:["sad","excited","happy"],e:"Bear lost the race, so he feels sad."}]},
+ {h:"IV. Write the -ing form",i:"Look at the verb in brackets.",k:"fill",s:"grammar",q:[
+  {q:"They are ______ football. (play)",img:"⚽",a:["playing"],e:"play + ing."},
+  {q:"She is ______ the ball. (kick)",img:"🦵⚽",a:["kicking"],e:"kick + ing."},
+  {q:"He is ______. (clap)",img:"👏",a:["clapping"],e:"clap: one vowel + one consonant, so double the p: clapping."},
+  {q:"They are ______. (skip)",img:"🪢",a:["skipping"],e:"skip → skipping (double the p)."},
+  {q:"We are ______ ice cream. (eat)",img:"🍦",a:["eating"],e:"eat + ing."},
+  {q:"She is ______. (dance)",img:"💃",a:["dancing"],e:"dance ends in silent e: take away e, add -ing."}]},
+ {h:"V. Long a",k:"fill",s:"phonics",q:[
+  {q:"When it is ______, I need my umbrella. (r _ _ _ y)",img:"🌧️☂️",a:["rainy"],e:"rainy has ai = long a."},
+  {q:"Snails come out to ______ on rainy days. (p _ _ y)",img:"🐌",a:["play"],e:"play has ay = long a."},
+  {t:"mc",q:"Which spelling makes the long a in 'train'?",img:"🚆",o:["ai","a_e","ay"],e:"tr-ai-n."}]},
+ {h:"VI. Read and answer",k:"mc",s:"reading",passage:"One cold winter day, Bear walked through the forest. 'I'm the fastest runner of all!' he boasted. The turtles were angry, so they made a plan. Turtle said, 'I can swim faster than you can run.' Bear laughed, and they had a race at the pond. The turtles hid under the ice in different places. Every time Bear looked, a turtle was in front of him! Turtle won the race. Bear felt sad and went to his cave. Deer and Fox said, 'Don't feel sad. It's just a silly race.' The turtles laughed. 'We are not fast, but we are clever!'",q:[
+  {t:"tf",q:"It was a hot summer day.",a:false,e:"It was a cold winter day."},
+  {t:"tf",q:"Bear said he was the fastest runner.",a:true,e:"'I'm the fastest runner of all!'"},
+  {t:"tf",q:"The race was at the pond.",a:true,e:"'…they had a race at the pond.'"},
+  {t:"tf",q:"Bear won the race.",a:false,e:"Turtle won the race."},
+  {t:"tf",q:"Deer and Fox were kind to Bear.",a:true,e:"They said, 'Don't feel sad.'"},
+  {t:"fill",q:"Why were the turtles angry? Because Bear was always …",a:["boast"],c:1,e:"Bear was boasting."},
+  {t:"fill",q:"Where did Bear go after the race?",a:["cave"],c:1,e:"He went to his cave."},
+  {t:"fill",q:"One cold ______ ______, Bear walked through the forest. (2 words)",a:["winter day"],e:"'One cold winter day…'"},
+  {t:"fill",q:"'It's just a ______ ______.' (2 words)",a:["silly race"],e:"Deer and Fox said it was just a silly race."}]}
+]},
+{id:"w4",n:"Unit 4",title:"The big sky",color:"#7c3aed",icon:"🌙",wp:52,secs:[
+ {h:"I. Vocabulary",i:"Read the description. Choose the word from the box.",k:"bank",s:"vocab",
+  bank:["shadow","sundial","Sun","Moon","Earth","star","planet","torch","spacesuit","gravity","midday","sunshine"],q:[
+  {q:"A dark shape made when something blocks the light.",a:"shadow",img:"👤"},
+  {q:"It tells the time with a shadow.",a:"sundial",img:"🕰️☀️"},
+  {q:"The star at the centre of our solar system.",a:"Sun",img:"☀️"},
+  {q:"It circles around Earth. We often see it at night.",a:"Moon",img:"🌕"},
+  {q:"Our planet. It is the third planet from the Sun.",a:"Earth",img:"🌍"},
+  {q:"Earth and Mars are both a …",a:"planet",img:"🪐"},
+  {q:"A small light you can hold in your hand.",a:"torch",img:"🔦"},
+  {q:"Astronauts wear this on the Moon.",a:"spacesuit",img:"🧑‍🚀"},
+  {q:"Twelve o'clock in the day, when the Sun is high.",a:"midday",img:"🕛"},
+  {q:"It pulls things down to the ground. It is weaker on the Moon.",a:"gravity",img:"⬇️🍎"}]},
+ {h:"II. Odd one out",k:"odd",s:"vocab",q:[
+  {o:["Monday","sunny","cloudy","rainy"],e:"sunny, cloudy, rainy are weather words."},
+  {o:["tree","kite","night","white"],e:"kite, night, white have the long i sound."},
+  {o:["walk","walked","played","climbed"],e:"walked, played, climbed are past simple. walk is not."},
+  {o:["table","sunshine","raincoat","sailboat"],e:"sunshine, raincoat, sailboat are compound words."},
+  {o:["Moon","morning","midday","evening"],e:"morning, midday, evening are times of day."}]},
+ {h:"III. Find the right fact",i:"Choose the correct word.",k:"mc",s:"reading",q:[
+  {q:"Earth is the ___ planet away from the Sun.",img:"🌍",o:["third","fourth","first"],e:"Earth is the third planet."},
+  {q:"___ is at the centre of the solar system.",img:"☀️",o:["The Sun","The Moon","Earth"],e:"The Sun is at the centre. Eight planets circle around it."},
+  {q:"We can see the Sun in the ___.",img:"🌤️",o:["day","night"],e:"The Sun is the only star we can see in the day."},
+  {q:"The Sun gives us heat and ___.",img:"🔆",o:["light","coolness","rain"],e:"The Sun gives us heat and light."},
+  {q:"At midday, your shadow is …",img:{shadow:"midday"},o:["short","long"],e:"The Sun is high, so the shadow is short."},
+  {q:"In the morning, your shadow is …",img:{shadow:"morning"},o:["long","short"],e:"The Sun is low, so the shadow is long."},
+  {q:"Can you use a sundial on a cloudy day?",img:"☁️",o:["No, because there is no shadow.","Yes, it works better.","Yes, it uses rain."],e:"A sundial needs sunshine to make a shadow."}]},
+ {h:"IV. Change the verbs into past tense",k:"fill",s:"grammar",q:[
+  {q:"I ______ the highest mountain in the world. (climb)",img:"🏔️",a:["climbed"],e:"climb + ed."},
+  {q:"I ______ football in Brazil. (play)",img:"⚽",a:["played"],e:"play + ed."},
+  {q:"I ______ to the astronauts. (wave)",img:"👋🧑‍🚀",a:["waved"],e:"wave ends in e, so add only -d."},
+  {q:"Yesterday we ______ TV. (watch)",img:"📺",a:["watched"],e:"watch + ed."},
+  {q:"Last night I ______ to my friend. (talk)",img:"🗣️",a:["talked"],e:"talk + ed."},
+  {t:"mc",q:"We ___ very excited.",img:"🤩",o:["were","was"],e:"we / you / they → were. I / he / she → was."}]},
+ {h:"V. Words and sounds",k:"fill",s:"phonics",q:[
+  {q:"rain + coat = ______",img:"🧥🌧️",a:["raincoat"],e:"Two little words make one big compound word."},
+  {q:"sun + rise = ______",img:"🌅",a:["sunrise"],e:"sunrise = when the sun rises."},
+  {t:"mc",q:"How many long i words? 'Five white tigers are driving in a line at night.'",img:"🐯",o:["6","3","4"],e:"five, white, tigers, driving, line, night = 6."},
+  {t:"order",q:"How do you make a sundial? Put the steps in order.",img:"☀️🕰️",a:"Put clay on a plate | Push a pencil into the clay | Put it in a sunny place | Mark the shadow",split:"|",e:"Clay first, then the pencil, then the sun, then mark the shadow."}]},
+ {h:"VI. Read and answer",k:"mc",s:"reading",passage:"Our class went on a make-believe field trip to the Moon with Professor Clark. We travelled in a spaceship. When we wanted to sleep, we got into sleeping bags. On the Moon, we wore spacesuits. There is no air on the Moon, so the backpack on our spacesuit gave us air to breathe. There is less gravity on the Moon, so we weighed less and we could jump very high! The soil was dry and dusty. Professor Clark said we could take one Moon rock home.",q:[
+  {t:"tf",q:"The class travelled by bus.",a:false,e:"They travelled in a spaceship."},
+  {t:"tf",q:"There is no air on the Moon.",a:true,e:"'There is no air on the Moon.'"},
+  {t:"tf",q:"The children could jump very high.",a:true,e:"Less gravity → they could jump very high."},
+  {t:"tf",q:"The soil was wet and muddy.",a:false,e:"It was dry and dusty."},
+  {t:"fill",q:"Who went with the class to the Moon?",a:["clark"],c:1,e:"Professor Clark."},
+  {t:"fill",q:"Why could they jump high? Because there is less …",a:["gravity"],c:1,e:"There is less gravity on the Moon."},
+  {t:"fill",q:"When we wanted to sleep, we got into ______ ______. (2 words)",a:["sleeping bags"],e:"'…we got into sleeping bags.'"},
+  {t:"fill",q:"We could take one ______ ______ home. (2 words)",a:["moon rock"],e:"'…one Moon rock home.'"}]}
+]},
+{id:"w5",n:"Unit 5",title:"Let's measure",color:"#0891b2",icon:"📏",wp:66,secs:[
+ {h:"I. Vocabulary",i:"Read the description. Choose the word from the box.",k:"bank",s:"vocab",
+  bank:["centimetre","metre","ruler","estimate","measure","triangle","rectangle","circle","heart","contest","spear","clever"],q:[
+  {q:"A shape with three sides.",a:"triangle",img:{shape:"triangle",color:"#ef4444"}},
+  {q:"A round shape.",a:"circle",img:{shape:"circle",color:"#3d8bff"}},
+  {q:"A shape with 4 sides: two long and two short.",a:"rectangle",img:{shape:"rectangle",color:"#22c55e"}},
+  {q:"We use it to measure short things.",a:"ruler",img:"📏"},
+  {q:"100 centimetres.",a:"metre",img:"💯"},
+  {q:"To find the exact size of something.",a:"measure",img:"📐"},
+  {q:"To look and say what you think (a good guess).",a:"estimate",img:"🤔"},
+  {q:"A game or race to find a winner.",a:"contest",img:"🏆"},
+  {q:"The long stick the animals threw into the air.",a:"spear",img:"🦯"},
+  {q:"Very smart, like Little Antelope.",a:"clever",img:"🧠"}]},
+ {h:"II. Odd one out",k:"odd",s:"vocab",q:[
+  {o:["thirteen","ten","twenty","thirty"],e:"ten, twenty, thirty: we count in tens."},
+  {o:["eat","ate","saw","drew"],e:"ate, saw, drew are past simple."},
+  {o:["green","circle","square","heart"],e:"circle, square, heart are shapes. green is a colour."},
+  {o:["spear","elephant","water ox","chimpanzee"],e:"The elephant, water ox and chimpanzee are animals in the story."},
+  {o:["ruler","hand","finger","arm"],e:"Long ago people measured with hands, fingers and arms."}]},
+ {h:"III. Choose the correct answer",k:"mc",s:"grammar",q:[
+  {q:"What did Birbal draw? He ___ a line.",img:"✏️",o:["drew","drawed","draws"],e:"draw → drew."},
+  {q:"He ___, 'My line is longer than your line.'",img:"💬",o:["said","says","sayed"],e:"say → said."},
+  {q:"The king ___ Birbal was very clever.",img:"🤴",o:["thought","thinks","thinked"],e:"think → thought."},
+  {q:"Did the king feel cross? No, he ___ happy.",img:"😊",o:["felt","feels","feeled"],e:"feel → felt."},
+  {q:"This cake is ___ you.",img:"🎂",o:["for","four"],e:"for = to give to someone. four = 4."},
+  {q:"It's ___ o'clock.",img:{clock:[2,0]},o:["two","too"],e:"two = 2. too = also."},
+  {q:"Yusuf has two turtles, and Hamza has turtles ___.",img:"🐢🐢",o:["too","two"],e:"too = also."}]},
+ {h:"IV. Write the past simple",k:"fill",s:"grammar",q:[
+  {q:"look → ______",img:"👀",a:["looked"],e:"look + ed."},
+  {q:"make → ______",img:"🛠️",a:["made"],e:"make → made (irregular)."},
+  {q:"see → ______",img:"👁️",a:["saw"],e:"see → saw."},
+  {q:"laugh → ______",img:"😂",a:["laughed"],e:"laugh + ed."},
+  {q:"What did the panda eat? It ______ bamboo. (eat)",img:"🐼🎋",a:["ate"],e:"eat → ate."}]},
+ {h:"V. Numbers and patterns",k:"fill",s:"vocab",q:[
+  {q:"two, four, six, ______",img:"2️⃣4️⃣6️⃣",a:["eight","8"],e:"Count in twos: +2."},
+  {q:"ten, twenty, ______, forty",img:"🔟",a:["thirty","30"],e:"Count in tens."},
+  {q:"twelve, ten, eight, ______",img:"⬇️",a:["six","6"],e:"Count back in twos: −2."},
+  {q:"one hundred, ninety, eighty, ______",img:"💯",a:["seventy","70"],e:"Count back in tens."},
+  {t:"order",q:"Put the words in order.",img:"🍎",a:"I won one little blue apple",e:"Number, then size, then colour: one little blue apple."}]},
+ {h:"VI. Which character?",k:"mc",s:"reading",q:[
+  {q:"This animal has two horns. It was the second animal to throw the spear.",img:"🐃",o:["Water Ox","Elephant","Chimpanzee"],e:"The water ox was second."},
+  {q:"This animal can walk on two legs. It was the third to throw the spear.",img:"🐒",o:["Chimpanzee","Elephant","Little Antelope"],e:"The chimpanzee was third."},
+  {q:"This animal is big, heavy and grey. It was the first to try.",img:"🐘",o:["Elephant","Water Ox","King Leopard"],e:"The elephant was first."},
+  {q:"This animal is yellow with black spots. It said, 'It's time to choose a new king.'",img:"🐆",o:["King Leopard","Little Antelope","Chimpanzee"],e:"King Leopard was old and tired."}]},
+ {h:"VII. Read and answer",k:"mc",s:"reading",passage:"Long ago, King Leopard was old and tired. He wanted a new king for the forest. He said, 'Throw this spear high into the air and count to ten before it hits the ground. The winner will be the new king.' The elephant tried first. He counted to five. The water ox counted to six. The chimpanzee counted very quickly, but he only got to eight. Then Little Antelope jumped high and threw the spear. He counted, '2, 4, 6, 8, 10!' He counted in twos! All the animals cheered for the new king, King Antelope.",q:[
+  {t:"tf",q:"King Leopard was young.",a:false,e:"He was old and tired."},
+  {t:"tf",q:"The elephant tried first.",a:true,e:"'The elephant tried first.'"},
+  {t:"tf",q:"The chimpanzee counted to ten.",a:false,e:"He only got to eight."},
+  {t:"tf",q:"Little Antelope counted in twos.",a:true,e:"2, 4, 6, 8, 10!"},
+  {t:"fill",q:"How far did the water ox count?",a:["six","6"],c:1,e:"'The water ox counted to six.'"},
+  {t:"fill",q:"Throw this spear high into ______ ______. (2 words)",a:["the air"],e:"'…high into the air…'"},
+  {t:"fill",q:"All the animals cheered for ______ ______. (2 words)",a:["king antelope"],e:"Little Antelope became King Antelope."}]}
+]},
+{id:"w6",n:"Unit 6",title:"All about bugs",color:"#ca8a04",icon:"🐞",wp:80,secs:[
+ {h:"I. Vocabulary",i:"Read the description. Choose the word from the box.",k:"bank",s:"vocab",
+  bank:["insect","antennae","web","silk","honey","pollen","cricket","flea","beehive","enemy","chrysalis","fact"],q:[
+  {q:"A small animal with six legs.",a:"insect",img:"🐜"},
+  {q:"Insects use these on their heads to feel, smell and taste.",a:"antennae",img:"🐛"},
+  {q:"A spider makes this to catch insects.",a:"web",img:"🕸️"},
+  {q:"Spiders make webs from this.",a:"silk",img:"🧵"},
+  {q:"Bees make this sweet food.",a:"honey",img:"🍯"},
+  {q:"Bees and butterflies eat this from flowers.",a:"pollen",img:"🌼"},
+  {q:"An insect that sings by rubbing its wings together.",a:"cricket",img:"🦗"},
+  {q:"Little Ant's cousin who lived on the dog.",a:"flea",img:"🐕"},
+  {q:"Bees sleep in this.",a:"beehive",img:"🐝🏠"},
+  {q:"A true piece of information.",a:"fact",img:"✅"}]},
+ {h:"II. Odd one out",k:"odd",s:"vocab",q:[
+  {o:["spider","ant","bee","butterfly"],e:"A spider has 8 legs. It is not an insect."},
+  {o:["bed","bee","tea","knee"],e:"bee, tea, knee have the long e sound."},
+  {o:["Because","What","Where","How"],e:"What, Where, How are question words."},
+  {o:["run","bit","scared","chased"],e:"bit, scared, chased are past simple."},
+  {o:["worm","caterpillar","chrysalis","butterfly"],e:"caterpillar → chrysalis → butterfly is a life cycle."}]},
+ {h:"III. Choose the correct answer",k:"mc",s:"reading",q:[
+  {q:"It has 4 colourful wings.",o:["🦋|butterfly","🐝|bee","🕷️|spider"],e:"A butterfly has 4 colourful wings."},
+  {q:"It is yellow and black.",o:["🐝|bee","🐜|ant","🪱|worm"],e:"Bees are yellow and black."},
+  {q:"It lives in the ground. It has no legs.",o:["🪱|worm","🦋|butterfly","🦗|cricket"],e:"A worm lives in the ground."},
+  {q:"It has wings, but most of them can't fly. They jump!",o:["🦗|cricket","🐝|bee","🦋|butterfly"],e:"Most crickets jump with strong back legs."},
+  {q:"Which sentence is true for both ants and spiders?",img:"🐜🕷️",o:["They have more than four legs.","They have antennae.","They make webs."],e:"Ants have 6 legs, spiders have 8. Only ants have antennae. Only spiders make webs."},
+  {q:"Which word rhymes with me?",img:"🙋",o:["tea","the","bed"],e:"me – tea – she – tree rhyme."}]},
+ {h:"IV. Writing questions",k:"fill",s:"grammar",q:[
+  {q:"______ do butterflies eat? — Pollen.",img:"🦋🌼",a:["what"],e:"What asks about a thing."},
+  {q:"______ do butterflies sleep? — In trees.",img:"🌳",a:["where"],e:"Where asks about a place."},
+  {q:"How ______ wings do butterflies have? — 4.",img:"4️⃣",a:["many"],e:"How many asks about a number."},
+  {t:"order",q:"Put the words in the correct order.",img:"🕷️",a:"How many legs does a spider have",e:"How many + thing + does + who + have?"},
+  {t:"order",q:"Put the words in the correct order.",img:"🦗",a:"What do crickets eat",e:"What + do + who + verb?"}]},
+ {h:"V. Little Ant – past tense",i:"Write the past tense of the verb.",k:"fill",s:"grammar",q:[
+  {q:"Cousin Flea ______ the dog. (bite)",img:"🐕",a:["bit"],e:"bite → bit."},
+  {q:"The dog ______ the cat. (scare)",img:"🐈",a:["scared"],e:"scare + d."},
+  {q:"The cat ______ the mouse. (chase)",img:"🐭",a:["chased"],e:"chase + d."},
+  {q:"The mouse ______ the leaf. (lift)",img:"🍂",a:["lifted"],e:"lift + ed."},
+  {q:"Little Ant ______ home to her mother. (run)",img:"🐜🏃",a:["ran"],e:"run → ran."}]},
+ {h:"VI. Read and answer",k:"mc",s:"reading",passage:"A cricket is an insect. It has six legs, two wings and two antennae. Crickets have wings, but most crickets do not fly. They jump! Their back legs are very strong. Crickets sing by rubbing their wings together. They have different songs with different meanings, and other crickets understand their songs. Crickets don't have ears on their heads. They hear with special spots on their legs. Crickets don't like the cold.",q:[
+  {t:"tf",q:"A cricket has eight legs.",a:false,e:"It has six legs. It is an insect."},
+  {t:"tf",q:"Most crickets fly.",a:false,e:"Most crickets do not fly. They jump."},
+  {t:"tf",q:"Crickets sing by rubbing their wings together.",a:true,e:"'Crickets sing by rubbing their wings together.'"},
+  {t:"tf",q:"Crickets hear with spots on their legs.",a:true,e:"They don't have ears on their heads."},
+  {t:"tf",q:"Crickets like the cold.",a:false,e:"Crickets don't like the cold."},
+  {t:"fill",q:"How do most crickets move?",a:["jump"],c:1,e:"They jump!"},
+  {t:"fill",q:"Their ______ ______ are very strong. (2 words)",a:["back legs"],e:"'Their back legs are very strong.'"},
+  {t:"fill",q:"A cricket has six legs, ______ ______ and two antennae. (2 words)",a:["two wings"],e:"six legs, two wings, two antennae."}]}
+]},
+{id:"w7",n:"Unit 7",title:"The world around us",color:"#059669",icon:"🌳",wp:94,secs:[
+ {h:"I. Vocabulary",i:"Read the description. Choose the word from the box.",k:"bank",s:"vocab",
+  bank:["recycle","litter","roots","stem","leaves","flower","seeds","wood","biography","autobiography","market","rubbish bin"],q:[
+  {q:"To use old things again to make new things.",a:"recycle",img:"♻️"},
+  {q:"Rubbish that people drop on the ground.",a:"litter",img:"🥤🗑️"},
+  {q:"The part of a plant that grows under the ground.",a:"roots",img:{plant:1}},
+  {q:"The part that holds up the leaves and the flower.",a:"stem",img:"🌱"},
+  {q:"The green parts of a tree that clean the air.",a:"leaves",img:"🍃"},
+  {q:"The pretty, colourful part of a plant.",a:"flower",img:"🌸"},
+  {q:"New plants and trees grow from these.",a:"seeds",img:"🌰"},
+  {q:"Paper is made from this.",a:"wood",img:"🪵"},
+  {q:"The true story of a person's life.",a:"biography",img:"📘"},
+  {q:"The story of your own life, written by you.",a:"autobiography",img:"✍️"}]},
+ {h:"II. Odd one out",k:"odd",s:"vocab",q:[
+  {o:["potato","mango","cherry","orange"],e:"Mangoes, cherries and oranges grow on trees. Potatoes grow under the ground."},
+  {o:["cow","crow","snow","boat"],e:"crow, snow, boat have the long o sound."},
+  {o:["tree","this","these","those"],e:"this, these, those point to things."},
+  {o:["glass","cards","boxes","magazines"],e:"Cards, boxes and magazines can be made from recycled paper."},
+  {o:["Africa","Kenya","Germany","United States"],e:"Africa is a continent. The others are countries."}]},
+ {h:"III. this, these, that, those",k:"mc",s:"grammar",q:[
+  {q:"(one, near) What's ___? — This is a carrot.",img:"🥕",o:["this","these","those"],e:"one + near = this."},
+  {q:"(many, far) What are ___? — Those are tomatoes.",img:"🍅🍅🍅",o:["those","that","this"],e:"many + far = those."},
+  {q:"(many, near) ___ are bananas.",img:"🍌🍌",o:["These","This","That"],e:"many + near = these."},
+  {q:"(one, far) ___ is a watermelon.",img:"🍉",o:["That","Those","These"],e:"one + far = that."}]},
+ {h:"IV. Yes or no?",k:"mc",s:"reading",q:[
+  {q:"Do plants make the air dirty?",img:"🌿",o:["No","Yes"],e:"No. Green leaves clean the air."},
+  {q:"Do roots grow tall?",img:"🌱",o:["No","Yes"],e:"No. Roots grow under the ground."},
+  {q:"How can we save trees?",img:"📄",o:["Write on both sides of the paper.","Make big fires.","Cut down more trees."],e:"Using less paper and recycling saves trees."},
+  {q:"Which food comes from a tree?",o:["🥜|nuts","🥔|potatoes","🥕|carrots"],e:"Nuts grow on trees."}]},
+ {h:"V. What are they doing?",i:"Write the -ing form.",k:"fill",s:"grammar",q:[
+  {q:"I'm ______ the trees. (water)",img:"🚿🌳",a:["watering"],e:"water + ing."},
+  {q:"We're ______ trees. (plant)",img:"🌱",a:["planting"],e:"plant + ing."},
+  {q:"I'm ______ up the rubbish. (pick)",img:"🗑️",a:["picking"],e:"pick + ing."},
+  {q:"I'm ______ the birds. (draw)",img:"🐦✏️",a:["drawing"],e:"draw + ing."},
+  {t:"order",q:"Wangari's journey: put the countries in order.",img:"🌍✈️",a:"Kenya | United States | Germany | Kenya",split:"|",e:"Born in Kenya → school in the United States → Germany → back to Kenya."}]},
+ {h:"VI. Long o",k:"mc",s:"phonics",q:[
+  {q:"Which word has the long o sound?",o:["🕳️|hole","🦘|hop","🍯|pot"],e:"hole has o_e = long o."},
+  {q:"Which word has the long o sound?",o:["🛣️|road","🪨|rock","🧦|sock"],e:"road has oa = long o."},
+  {t:"order",q:"Make a sentence.",img:"🐦‍⬛",a:"The crow is very clever",e:"The crow is very clever."}]},
+ {h:"VII. Read and answer",k:"mc",s:"reading",passage:"A thirsty old crow is looking for water. He sees a deep hole in the ground. There is some water at the bottom, but the crow can't reach it. The crow thinks and thinks. Then he has an idea! He picks up a little stone and throws it into the hole. He throws lots and lots of stones. Slowly, the water gets higher and higher. At last, the crow can reach the water. He drinks and drinks. What a clever crow!",q:[
+  {t:"tf",q:"The crow is looking for food.",a:false,e:"He is looking for water."},
+  {t:"tf",q:"There is water at the bottom of the hole.",a:true,e:"'There is some water at the bottom.'"},
+  {t:"tf",q:"The crow throws stones into the hole.",a:true,e:"He throws lots of stones."},
+  {t:"tf",q:"The water gets lower and lower.",a:false,e:"It gets higher and higher."},
+  {t:"tf",q:"The crow can drink at the end.",a:true,e:"He drinks and drinks."},
+  {t:"fill",q:"What does the crow throw into the hole?",a:["stone"],c:1,e:"Little stones."},
+  {t:"fill",q:"He sees a deep ______ in the ground.",a:["hole"],e:"'…a deep hole in the ground.'"},
+  {t:"fill",q:"What a ______ ______! (2 words)",a:["clever crow"],e:"'What a clever crow!'"}]}
+]},
+{id:"w8",n:"Unit 8",title:"Home, sweet home",color:"#db2777",icon:"🏠",wp:108,secs:[
+ {h:"I. Vocabulary",i:"Read the description. Choose the word from the box.",k:"bank",s:"vocab",
+  bank:["nest","hive","adobe house","stilt house","cave house","skyscraper","kitchen","refrigerator","lamp","enemy","termites","roof"],q:[
+  {q:"A home for a bird.",a:"nest",img:"🪺"},
+  {q:"A home for bees.",a:"hive",img:"🐝"},
+  {q:"A house made of mud and dry grass.",a:"adobe house",img:"🏜️"},
+  {q:"A house built high above water on tree trunks.",a:"stilt house",img:"🛖🌊"},
+  {q:"A home built in rocky cliffs.",a:"cave house",img:"⛰️"},
+  {q:"A very tall building in a city.",a:"skyscraper",img:"🏙️"},
+  {q:"The room where we cook.",a:"kitchen",img:"🍳"},
+  {q:"It keeps food cold.",a:"refrigerator",img:"🧊"},
+  {q:"It lights up the room.",a:"lamp",img:"💡"},
+  {q:"An animal that wants to eat you, like a fox for a rabbit.",a:"enemy",img:"🦊🐇"}]},
+ {h:"II. Odd one out",k:"odd",s:"vocab",q:[
+  {o:["book","moon","food","goose"],e:"moon, food, goose have the oo sound in zoo. book is different."},
+  {o:["garden","kitchen","bedroom","bathroom"],e:"kitchen, bedroom, bathroom are rooms inside the house."},
+  {o:["lamp","rabbit","beaver","termite"],e:"Rabbits, beavers and termites are animals that build homes."},
+  {o:["bed","blue","flew","huge"],e:"blue, flew, huge have the long u sound."},
+  {o:["sofa","slide","swing","seesaw"],e:"slide, swing and seesaw are in a playground."}]},
+ {h:"III. Using will",k:"mc",s:"grammar",q:[
+  {q:"The new playground ___ two slides.",img:"🛝",o:["will have","has had","haves"],e:"Future: will + verb."},
+  {q:"One slide ___ very curvy.",img:"〰️",o:["will be","will is","be"],e:"will + be."},
+  {q:"Now I have three seeds. In a few weeks, I ___ three plants.",img:"🌱",o:["will have","have","had"],e:"In a few weeks = future: will have."},
+  {q:"Now I have four eggs. In a few months, I will have four …",img:"🥚",o:["chickens","eggs","seeds"],e:"Eggs hatch into chicks, then chickens!"},
+  {q:"Will the paper clip slide? — No, it ___.",img:"📎",o:["won't","will","don't"],e:"will not = won't."}]},
+ {h:"IV. Animal homes",k:"mc",s:"reading",q:[
+  {q:"Whose home is in a pond?",o:["🦫|beaver","🐇|rabbit","🐜|termite"],e:"Beavers build homes in the middle of a pond."},
+  {q:"Whose home is under the ground?",o:["🐇|rabbit","🦫|beaver","🐦|bird"],e:"Rabbits live under the ground."},
+  {q:"Whose home is made just of mud?",o:["🐜|termite","🦫|beaver","🐇|rabbit"],e:"Termites build tall towers from mud."},
+  {q:"Which animal is an enemy of a beaver?",o:["🐺|wolf","🐟|fish","🦋|butterfly"],e:"Underwater tunnels keep beavers safe from wolves."},
+  {q:"Which home is built above water?",img:"🌊",o:["stilt house","adobe house","cave house"],e:"Stilt houses stand high on tree trunks."}]},
+ {h:"V. Words and spelling",k:"fill",s:"phonics",q:[
+  {q:"Where do you brush your teeth? In the ______.",img:"🪥",a:["bathroom"],e:"We brush our teeth in the bathroom."},
+  {q:"You sit on me. What am I? (c _ _ _ r)",img:"🪑",a:["chair"],e:"A chair."},
+  {q:"Unscramble: b i b r t a",img:"🐇",a:["rabbit"],e:"r-a-b-b-i-t."},
+  {q:"do not = ______",img:"🚫",a:["don't","dont","don’t"],e:"do not = don't."},
+  {t:"mc",q:"How many words have the long u / oo sound? 'The huge blue goose flew to the moon.'",img:"🪿🌕",o:["5","2","3"],e:"huge, blue, goose, flew, moon = 5."}]},
+ {h:"VI. Read and answer",k:"mc",s:"reading",passage:"Rabbits build their homes under the ground. A rabbit home has lots of tunnels and rooms. There are special rooms for baby rabbits and their mother. When a rabbit sees a fox, it stamps on the ground with its back foot. Then all the rabbits run down a rabbit hole. Beavers build their homes in the middle of a pond. They cut down trees with their sharp teeth and use branches, rocks and mud. The beavers live in one big room above the water. They go in and out through underwater tunnels, so wolves can't get in.",q:[
+  {t:"tf",q:"Rabbits build their homes in trees.",a:false,e:"They build homes under the ground."},
+  {t:"tf",q:"There are special rooms for baby rabbits.",a:true,e:"'…special rooms for baby rabbits and their mother.'"},
+  {t:"tf",q:"A rabbit stamps with its front foot.",a:false,e:"It stamps with its back foot."},
+  {t:"tf",q:"Beavers cut down trees with their sharp teeth.",a:true,e:"'They cut down trees with their sharp teeth.'"},
+  {t:"fill",q:"What does a rabbit do when it sees a fox?",a:["stamp"],c:1,e:"It stamps on the ground."},
+  {t:"fill",q:"How do beavers go in and out of their home?",a:["tunnel"],c:1,e:"Through underwater tunnels."},
+  {t:"fill",q:"Beavers build their homes in the middle of a ______.",a:["pond"],e:"'…in the middle of a pond.'"},
+  {t:"fill",q:"The beavers live in one big ______ above the water.",a:["room"],e:"'…one big room above the water.'"}]}
+]},
+{id:"w9",n:"Unit 9",title:"Let's explore the city!",color:"#ea580c",icon:"🏙️",wp:122,secs:[
+ {h:"I. Vocabulary",i:"Read the description. Choose the word from the box.",k:"bank",s:"vocab",
+  bank:["helicopter","ferry","underground","aquarium","library","museum","traffic light","menu","waiter","fable","opposite","café"],q:[
+  {q:"It flies in the sky. It has spinning blades on top.",a:"helicopter",img:"🚁"},
+  {q:"A boat that takes people across the water.",a:"ferry",img:"⛴️"},
+  {q:"A train that goes under the city.",a:"underground",img:"🚇"},
+  {q:"A place where you can see sharks and jellyfish.",a:"aquarium",img:"🦈🪼"},
+  {q:"A place where you can borrow books.",a:"library",img:"📚"},
+  {q:"A place where you can see dinosaurs and old things.",a:"museum",img:"🦖"},
+  {q:"It tells cars when to stop and go.",a:"traffic light",img:"🚦"},
+  {q:"A list of food and drinks in a café.",a:"menu",img:"📋"},
+  {q:"A person who brings your food in a café.",a:"waiter",img:"🍽️"},
+  {q:"A story that teaches us something.",a:"fable",img:"🐭📖"}]},
+ {h:"II. Odd one out",k:"odd",s:"vocab",q:[
+  {o:["quiet","slowly","quickly","loudly"],e:"slowly, quickly, loudly end in -ly and tell HOW."},
+  {o:["helicopter","shark","octopus","jellyfish"],e:"Sharks, octopuses and jellyfish live in the sea."},
+  {o:["will go","ate","ran","danced"],e:"ate, ran, danced are past. will go is future."},
+  {o:["owl","shop","café","library"],e:"shop, café, library are city places."},
+  {o:["happy","up","down","left"],e:"up, down and left are directions."}]},
+ {h:"III. Opposites",k:"mc",s:"vocab",q:[
+  {q:"The opposite of up is …",img:"⬆️",o:["down","right","high"],e:"up ↔ down."},
+  {q:"The opposite of strong is …",img:"💪",o:["weak","wrong","low"],e:"strong ↔ weak."},
+  {q:"The opposite of lost is …",img:"🔍",o:["found","cold","stand"],e:"lost ↔ found."},
+  {q:"The opposite of hot is …",img:"🔥",o:["cold","high","weak"],e:"hot ↔ cold."},
+  {q:"The opposite of sit is …",img:"🪑",o:["stand","sat","chair"],e:"sit ↔ stand."}]},
+ {h:"IV. -ly words",i:"Choose the best word.",k:"mc",s:"phonics",q:[
+  {q:"She's running for the bus. She's running …",img:"🏃‍♀️🚌",o:["quickly","slowly","sadly"],e:"She's in a hurry: quickly."},
+  {q:"The baby's asleep. He's talking …",img:"👶💤",o:["quietly","loudly","angrily"],e:"We talk quietly when a baby sleeps."},
+  {q:"She won the prize. She's smiling …",img:"🏆",o:["happily","sadly","angrily"],e:"Winning makes her happy."},
+  {q:"He doesn't want to go to school today. He's walking …",img:"🚶",o:["slowly","quickly","happily"],e:"He doesn't want to go, so he walks slowly."}]},
+ {h:"V. Past, present and future",k:"fill",s:"grammar",q:[
+  {q:"What will you do at the zoo? I ______ wave to the animals.",img:"🦒",a:["will"],e:"Future: will + verb."},
+  {q:"What are you doing now? I am ______ with a duck. (dance)",img:"🦆💃",a:["dancing"],e:"Now: am + verb-ing."},
+  {q:"Yesterday I ______ with a rabbit. (run)",img:"🐇",a:["ran"],e:"Past: run → ran."},
+  {q:"I won't go to the Moon. I ______ go to Mars.",img:"🚀",a:["will"],e:"won't ↔ will."},
+  {q:"Unscramble: a x i t",img:"🚕",a:["taxi"],e:"t-a-x-i."},
+  {t:"mc",q:"Malik: 'I like ice cream!' You like it too. You say …",img:"🍦",o:["So do I!","I don't!","No, I'm not."],e:"So do I! = I like it too."}]},
+ {h:"VI. Read and answer",k:"mc",s:"reading",passage:"Cindy lives in the city. Callie lives in the country. On a TV show called Changing Places, they changed homes for a week. In the city, Callie went to a party at the top of a tall building. There was food and music. Then a cat came! Callie ran out and took a taxi home. In the country, Cindy had a picnic with Carlos. They ate berries and nuts and looked at the stars. Then an owl came! Cindy jumped into a mouse hole. The next day she took the bus back to the city. Both mice were happy to be home.",q:[
+  {t:"tf",q:"Cindy lives in the country.",a:false,e:"Cindy lives in the city."},
+  {t:"tf",q:"The party was at the top of a tall building.",a:true,e:"'…a party at the top of a tall building.'"},
+  {t:"tf",q:"An owl scared Callie.",a:false,e:"A cat scared Callie. An owl scared Cindy."},
+  {t:"tf",q:"Both mice were happy to be home.",a:true,e:"East, west, home is best!"},
+  {t:"mc",q:"Who liked the city better?",img:"🏙️",o:["Cindy","Callie"],e:"Cindy is the city mouse."},
+  {t:"fill",q:"How did Callie go home?",a:["taxi"],c:1,e:"She took a taxi."},
+  {t:"fill",q:"What is the name of the TV show? (2 words)",a:["changing places"],c:1,e:"Changing Places."},
+  {t:"fill",q:"Cindy jumped into a ______ ______. (2 words)",a:["mouse hole","mousehole"],e:"'Cindy jumped into a mouse hole.'"},
+  {t:"fill",q:"They ate berries and ______.",a:["nuts"],e:"'They ate berries and nuts…'"}]}
+]}
+];
+
 </script>
 <script>
 {
@@ -393,9 +852,10 @@ const findUnit = id => UNITS.find(u=>u.id===id);
 
 function home(){
  try{speechSynthesis.cancel()}catch(e){}
- const card = u => `<button class="unit" data-go="${u.id}"><span class="ic" style="background:${u.color}22">${u.icon}</span><span><b>${u.n}</b><span class="t">${esc(u.title)}</span><span class="stars" aria-label="best score">${stars(best[u.id])}${best[u.id]!=null?` <span style="color:var(--muted)">${best[u.id]}/10</span>`:""}</span></span></button>`;
+ const card = u => `<button class="unit" data-go="${u.id}"><span class="ic" style="background:${u.color}22">${u.icon}</span><span><b>${u.n}${u.secs?" · Workbook":""}</b><span class="t">${esc(u.title)}</span><span class="stars" aria-label="best score">${stars(best[u.id])}${best[u.id]!=null?` <span style="color:var(--muted)">${best[u.id]}/10</span>`:""}</span></span></button>`;
  app.innerHTML = `<header><span class="logo">📘</span><div><h1>Global English 2 – Review</h1><p class="sub">Choose a unit. Answer the questions. See your score! <span class="vn">· Chọn bài để ôn tập, chấm điểm và xem phân tích lỗi sai.</span></p></div></header>
- <div class="grid">${UNITS.map(card).join("")}</div>
+ <h2>Learner's Book <span class="vn">· Ôn tập theo sách Learner's Book</span></h2><div class="grid">${UNITS.map(card).join("")}</div>
+ <h2>Workbook revision <span class="vn">· Ôn tập theo Workbook (giống đề Revision)</span></h2><div class="grid">${WB.map(card).join("")}</div>
  <h2>Check your progress</h2><div class="grid">${REVIEWS.map(card).join("")}
  <button class="unit" data-go="words"><span class="ic" style="background:#db277722">🔊</span><span><b>Game</b><span class="t">Picture words – listen and tap</span><span class="stars">${stars(best.words)}${best.words!=null?` <span style="color:var(--muted)">${best.words}/10</span>`:""}</span></span></button></div>
  <p class="vn" style="margin-top:22px">Mẹo: bấm 🔊 để nghe câu hỏi. Điểm cao nhất của mỗi bài được lưu trên trình duyệt này.</p>`;
@@ -406,11 +866,19 @@ function start(id, retry){
  let unit, qs;
  if(id==="words"){ unit={id:"words",n:"Game",title:"Picture words",color:"#db2777"};
   qs = shuffle(WORDS).slice(0,12).map(w=>({t:"listen",s:"listening",say:w.w,q:"Listen and tap the picture.",o:[w].concat(shuffle(WORDS.filter(x=>x.w!==w.w)).slice(0,3)).map(x=>x.e+"|"+x.w),e:`You heard “${w.w}”.`}));
+ } else if(id[0]==="w"){ unit=WB.find(w=>w.id===id); qs=[];
+  unit.secs.forEach((sec,si)=>sec.q.forEach(it=>{ const t=it.t||({bank:"bank",odd:"mc",mc:"mc",fill:"fill",tf:"tf",order:"order"}[sec.k]);
+   const base={...it, s:it.s||sec.s, sec:sec.h, si, ins:sec.i, passage:sec.passage, u:id};
+   if(t==="bank"){ base.t="bank"; base.ans=it.a; base.o=sec.bank; base.e=it.e||`“${it.a}”: ${it.q}`; }
+   else if(sec.k==="odd"&&!it.t){ base.t="mc"; base.q="Which word is the odd one out?"; }
+   else if(t==="tf"){ base.t="tf"; base.o=["True","False"]; base.a=it.a?0:1; }
+   else base.t=t;
+   qs.push(base) }));
  } else if(id[0]==="c"){ unit=REVIEWS.find(r=>r.id===id);
   qs = shuffle(unit.from.flatMap(u=>findUnit(u).q.map(q=>({...q,u})))).slice(0,15);
  } else { unit=findUnit(id); qs=shuffle(unit.q.map(q=>({...q,u:id}))) }
- if(retry) qs = shuffle(retry);
- qs = qs.map(q=>{ const c={...q}; if(c.t==="mc"||c.t==="listen"){c.right=c.o[0]; c.opts=shuffle(c.o)} if(c.t==="tf"){c.right=c.o[c.a]; c.opts=c.o}
+ if(retry) qs = id[0]==="w" ? retry.slice() : shuffle(retry);
+ qs = qs.map(q=>{ const c={...q}; if(c.t==="mc"||c.t==="listen"){c.right=c.o[0]; c.opts=shuffle(c.o)} if(c.t==="tf"){c.right=c.o[c.a]; c.opts=c.o} if(c.t==="bank"){c.right=c.ans; c.opts=c.o}
   if(c.t==="order"){const sp=c.split||" "; c.parts=c.a.split(sp).map(x=>x.trim()); c.right=c.parts.join(sp===" "?" ":" → "); let sh; do{sh=shuffle(c.parts)}while(c.parts.length>1&&sh.join()==c.parts.join()); c.pool=sh}
   if(c.t==="fill") c.right=c.a[0]; return c});
  S={unit,qs,i:0,ans:[],retry:!!retry}; question()}
@@ -422,16 +890,18 @@ function question(){
   return e ? `<button class="opt" data-v="${esc(o)}"><span class="e">${e}</span><span class="w ${q.t==="listen"?"hidden":""}">${esc(w)}</span></button>` : `<button class="opt" data-v="${esc(o)}">${esc(o)}</button>` };
  let body="";
  if(q.t==="listen") body = `<div class="pic"><button class="big-listen" id="play" aria-label="play sound">🔊</button></div>`;
- else body = pic(q.img);
+ else body = (q.passage?`<details class="passage" open><summary>📖 Read the text <button class="say sm" id="rp" type="button" aria-label="read the text aloud">🔊</button></summary><p>${esc(q.passage).replace(/\n/g,"<br>")}</p></details>`:"") + pic(q.img);
+ if(q.t==="bank") body += `<div class="bank">${q.opts.map(o=>`<button class="opt chipopt" data-v="${esc(o)}">${esc(o)}</button>`).join("")}</div>`;
  if(q.t==="mc"||q.t==="tf"||q.t==="listen") body += `<div class="opts ${isPic?"pics":""}">${q.opts.map(optHTML).join("")}</div>`;
  if(q.t==="fill") body += `<form class="fillrow" id="ff"><input id="fin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type here…" aria-label="your answer"><button class="main" type="submit">Check</button></form>`;
  if(q.t==="order") body += `<div class="tiles ans" id="ans" aria-label="your answer"></div><div class="tiles" id="pool">${q.pool.map((p,k)=>`<button class="tile" data-k="${k}">${esc(p)}</button>`).join("")}</div><div class="next" style="justify-content:flex-start"><button class="main" id="chk" disabled>Check</button></div>`;
  app.innerHTML = `<div class="top"><button class="ghost" id="back" aria-label="home">🏠</button><div class="bar"><i style="width:${S.i/n*100}%"></i></div><span class="count">${S.i+1} / ${n}</span></div>
- <div class="card"><p class="sub" style="margin:0 0 6px">${esc(u.n)} · ${esc(u.title)}${q.l?` · Lesson ${q.l}`:""}</p>
+ <div class="card"><p class="sub" style="margin:0 0 6px">${esc(u.n)} · ${esc(u.title)}${q.l?` · Lesson ${q.l}`:""}</p>${q.sec?`<p class="sech">${esc(q.sec)}${q.ins?` <span>${esc(q.ins)}</span>`:""}</p>`:""}
  <div class="qtext"><button class="say" id="rq" aria-label="read question">🔊</button><span>${esc(q.q)}</span></div>${body}
  <div class="fb" id="fb"></div><div class="next hidden" id="nx"><button class="main" id="nb">${S.i+1<n?"Next ➜":"See my score 🏁"}</button></div></div>`;
  $("#back").onclick=home;
  $("#rq").onclick=()=>speak(q.q+(q.t==="mc"||q.t==="tf"?". "+q.opts.map(o=>o.split("|").pop()).join(". "):""));
+ if(q.passage){ $("#rp").onclick=e=>{e.preventDefault();e.stopPropagation();speak(q.passage,.85)} }
  if(q.t==="listen"){ $("#play").onclick=()=>speak(q.say,.8); setTimeout(()=>speak(q.say,.8),350) }
  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>answer(b.dataset.v,b));
  if(q.t==="fill"){ const f=$("#fin"); f.focus(); $("#ff").onsubmit=e=>{e.preventDefault(); if(f.value.trim()) answer(f.value.trim())} }
@@ -444,7 +914,7 @@ function question(){
 
 function answer(v,btn){
  const q=S.qs[S.i]; let ok;
- if(q.t==="fill") ok=q.a.some(a=>norm(a)===norm(v));
+ if(q.t==="fill") ok=q.a.some(a=>q.c? norm(v).replace(/\s/g,"").includes(norm(a).replace(/\s/g,"")) : norm(a)===norm(v));
  else if(q.t==="order") ok=norm(v)===norm(q.right);
  else ok=v===q.right;
  S.ans.push({q,given:v,ok});
@@ -471,13 +941,16 @@ function result(){
  app.innerHTML = `<div class="top"><button class="ghost" id="back">🏠 Home</button><span class="count">${esc(S.unit.n)} · ${esc(S.unit.title)}</span></div>
  <div class="card"><div class="res"><div class="ring"><svg viewBox="0 0 220 220"><circle cx="110" cy="110" r="${R}" fill="none" stroke="var(--soft)" stroke-width="22"/><circle cx="110" cy="110" r="${R}" fill="none" stroke="${col}" stroke-width="22" stroke-linecap="round" stroke-dasharray="${C*c/n} ${C}"/></svg><div class="v"><div><b>${sc}</b><small>out of 10</small><small>${c}/${n} correct · ${pct}%</small></div></div></div>
  <div><h1 style="font-size:clamp(26px,4vw,36px)">${msg}</h1><p class="vn" style="font-size:17px">${vn}</p><div style="font-size:34px;color:#f59e0b">${stars(sc)}</div></div></div>
+ ${S.qs[0].sec?(()=>{const parts=[];S.ans.forEach(a=>{let p=parts.find(x=>x.h===a.q.sec);if(!p)parts.push(p={h:a.q.sec,c:0,n:0});p.n++;if(a.ok)p.c++});
+  return `<h2>Parts <span class="vn">· Kết quả từng phần (${c}/${n} điểm)</span></h2>`+parts.map(p=>{const pc=Math.round(p.c/p.n*100);return `<div class="skill"><span>${esc(p.h)}</span><span class="track"><i style="width:${pc}%;background:${pc>=75?"var(--ok)":pc>=50?"#f59e0b":"var(--bad)"}"></i></span><span class="pc">${p.c}/${p.n}</span></div>`}).join("")})():""}
  <h2>Skills <span class="vn">· Kết quả theo kỹ năng</span></h2>
  ${skills.map(k=>{const p=Math.round(by[k].c/by[k].n*100);return `<div class="skill"><span>${SK[k][0]}<br><span class="vn">${SK[k][1]}</span></span><span class="track"><i style="width:${p}%;background:${p>=75?"var(--ok)":p>=50?"#f59e0b":"var(--bad)"}"></i></span><span class="pc">${by[k].c}/${by[k].n}</span></div>`}).join("")}
  <div class="advice"><b>What to practise · Nhận xét cho phụ huynh</b>
  ${weak.length? weak.map(k=>`<p style="margin:8px 0">• <b>${SK[k][0]}</b> (${by[k].c}/${by[k].n}): ${ADVICE[k][0]}<br><span class="vn">${SK[k][1]}: ${ADVICE[k][1]}</span></p>`).join("") : `<p style="margin:8px 0">All skills are strong. Try another unit! <br><span class="vn">Tất cả kỹ năng đều tốt (≥75%). Có thể chuyển sang bài tiếp theo.</span></p>`}
+ ${S.unit.wp?`<p style="margin:8px 0">📗 Open the Workbook at page ${S.unit.wp} and look at the parts with red bars again.<br><span class="vn">Mở Workbook từ trang ${S.unit.wp}, ôn lại các phần có thanh màu đỏ/cam ở trên.</span></p>`:""}
  ${lessons.length?`<p style="margin:8px 0">📖 Review these lessons in the book: <b>${lessons.map(x=>{const [u,l]=x.split("|");const p=pageOf(findUnit(u),l);return `Lesson ${l}${p?` (p.${p})`:""}`}).join(", ")}</b><br><span class="vn">Nên mở sách ôn lại các bài trên.</span></p>`:""}</div>
  ${wrong.length?`<h2>Mistakes (${wrong.length}) <span class="vn">· Các câu sai</span></h2>`+wrong.map(a=>{const q=a.q; const g=String(a.given).includes("|")?a.given.split("|")[1]:a.given; const r=q.right.includes("|")?q.right.split("|")[1]:q.right;
-  return `<div class="mist"><div><b>${esc(q.q)}</b></div><div class="row"><span class="chip r">Your answer: ${esc(g)}</span><span class="chip g">Correct: ${esc(r)}</span><span class="chip">${SK[q.s][0]}${q.l?` · Lesson ${q.l}`:""}</span></div><div style="margin-top:6px">💡 ${esc(q.e||"")}</div></div>`}).join(""):`<h2>No mistakes! 🎉</h2>`}
+  return `<div class="mist"><div><b>${esc(q.q)}</b></div><div class="row"><span class="chip r">Your answer: ${esc(g)}</span><span class="chip g">Correct: ${esc(r)}</span><span class="chip">${q.sec?esc(q.sec):SK[q.s][0]}${q.l?` · Lesson ${q.l}`:""}</span></div><div style="margin-top:6px">💡 ${esc(q.e||"")}</div></div>`}).join(""):`<h2>No mistakes! 🎉</h2>`}
  <div class="btns">${wrong.length?`<button class="main" id="redo">Practise my mistakes</button>`:""}<button class="ghost" id="again">Try the whole quiz again</button><button class="ghost" id="home2">Choose another unit</button></div></div>`;
  $("#back").onclick=home; $("#home2").onclick=home;
  $("#again").onclick=()=>start(S.unit.id);
@@ -485,6 +958,7 @@ function result(){
  if(sc>=9) speak("Excellent! You are a star!",1); else speak("You got "+c+" out of "+n,1);
  window.scrollTo(0,0)}
 
+window.__cur=()=>S;
 home();
 }
 
