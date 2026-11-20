@@ -105,6 +105,15 @@ h2{font-size:24px;margin:26px 0 10px}
 .diff b{display:inline-grid;place-items:center;min-width:26px;height:32px;border-radius:6px;font-weight:600}
 .lg{background:var(--okbg);color:var(--ok)}.lb{background:#fecdd3;color:#be123c}
 .plist{display:grid;gap:10px}.part{min-height:72px;border:3px solid var(--line);box-shadow:none}
+.ov{position:fixed;inset:0;background:#0007;display:grid;place-items:end center;z-index:50;padding:12px}
+@media(min-width:600px){.ov{place-items:center}}
+.sheet{background:var(--card);color:var(--ink);border-radius:24px;padding:20px;width:min(520px,100%);max-height:90vh;overflow:auto}
+.sheet select{width:100%;font:inherit;font-size:17px;min-height:50px;border-radius:14px;border:3px solid var(--line);background:var(--card);color:var(--ink);padding:0 10px}
+.lbl{display:block;font-weight:600;margin-bottom:6px}
+.seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.seg button{min-height:50px;border-radius:14px;border:3px solid var(--line);background:var(--card);font-size:16px}
+.seg button.on{border-color:#3d8bff;background:light-dark(#e0edff,#1d3a6b);font-weight:600}
+.vbtn{flex:none}@media(max-width:600px){.vbtn span{display:none}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @keyframes pop{0%{transform:scale(.6)}70%{transform:scale(1.1)}100%{transform:scale(1)}}
 .pop{animation:pop .35s}
@@ -1354,10 +1363,40 @@ const pageOf = (u,l) => { if(!u||!u.page||!l) return ""; const n=+String(l).spli
 const stars = v => v==null ? "☆☆☆" : (v>=9?"★★★":v>=7?"★★☆":v>=5?"★☆☆":"☆☆☆");
 
 /* ---------- speech ---------- */
-let voice=null;
-const pickVoice=()=>{try{const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}catch(e){}};
-try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
-const speak = (t,rate=.85) => { try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t.replace(/_{2,}/g," blank ").replace(/[|]/g,"")); u.lang="en-GB"; if(voice)u.voice=voice; u.rate=rate; speechSynthesis.speak(u);}catch(e){} };
+let voice=null, voices=[];
+let VS={uri:"",speed:.8}; try{VS={...VS,...JSON.parse(localStorage.getItem("cge2-voice")||"{}")}}catch(e){}
+const saveVS=()=>{try{localStorage.setItem("cge2-voice",JSON.stringify(VS))}catch(e){}};
+const NOVELTY=/albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|ralph|grandma|grandpa|rocko|shelley|flo|eddy|reed|sandy/i;
+const vScore=v=>{const n=v.name; let s=0;
+ if(/premium/i.test(n))s+=60; if(/enhanced|natural|neural|online/i.test(n))s+=50; if(/google/i.test(n))s+=40; if(/siri/i.test(n))s+=35;
+ if(/serena|daniel|kate|ava|zoe|samantha|karen|moira|libby|sonia|ryan|aria|jenny|guy/i.test(n))s+=10;
+ if(/en[-_]GB/i.test(v.lang))s+=8; else if(/en[-_]US/i.test(v.lang))s+=6; else if(/en[-_](AU|IE)/i.test(v.lang))s+=3;
+ if(v.localService===false)s+=2; return s};
+const vLabel=v=>{const q=vScore(v)>=35?"⭐ ":""; const c=(v.lang.split(/[-_]/)[1]||"").toUpperCase(); const flag={GB:"🇬🇧",US:"🇺🇸",AU:"🇦🇺",IE:"🇮🇪",IN:"🇮🇳",ZA:"🇿🇦",CA:"🇨🇦",NZ:"🇳🇿"}[c]||"🌐"; return `${q}${flag} ${v.name}`};
+const pickVoice=()=>{try{ voices=speechSynthesis.getVoices().filter(v=>/^en/i.test(v.lang)&&!NOVELTY.test(v.name)).sort((a,b)=>vScore(b)-vScore(a));
+ voice=voices.find(v=>v.voiceURI===VS.uri)||voices[0]||null; if(document.getElementById("vsel")) fillVoices(); }catch(e){}};
+try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice;setTimeout(pickVoice,800)}catch(e){}
+const speak = (t,rate=.85) => { try{ speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(String(t).replace(/_{2,}/g," blank ").replace(/[|]/g,"")); u.lang=voice?voice.lang:"en-GB"; if(voice)u.voice=voice; u.rate=Math.max(.4,Math.min(1.3,VS.speed*rate/.85)); speechSynthesis.speak(u);}catch(e){} };
+function fillVoices(){ const sel=document.getElementById("vsel"); if(!sel)return;
+ sel.innerHTML = voices.length? voices.map(v=>`<option value="${esc(v.voiceURI)}" ${voice&&v.voiceURI===voice.voiceURI?"selected":""}>${esc(vLabel(v))}</option>`).join("") : `<option>Đang tải giọng đọc…</option>`;
+ document.getElementById("vnone").classList.toggle("hidden", voices.some(v=>vScore(v)>=35)); }
+function openVoice(){
+ let ov=document.getElementById("vov"); if(ov) ov.remove();
+ ov=document.createElement("div"); ov.id="vov"; ov.className="ov";
+ const sp=[["Slow · Chậm",.6],["Normal · Vừa",.8],["Fast · Nhanh",1]];
+ ov.innerHTML=`<div class="sheet" role="dialog" aria-label="voice settings"><h2 style="margin:0 0 6px">🗣️ Chọn giọng đọc</h2>
+ <p class="vn" style="margin:0 0 12px">Giọng có ⭐ là giọng chất lượng cao (Premium / Enhanced / Natural). Chọn rồi bấm Nghe thử.</p>
+ <label for="vsel" class="lbl">Giọng đọc</label><select id="vsel"></select>
+ <p class="vn hidden" id="vnone" style="margin:8px 0 0">Máy chưa có giọng chất lượng cao. iPhone: Cài đặt → Trợ năng → Nội dung được đọc → Giọng nói → Tiếng Anh → tải giọng “Nâng cao/Cao cấp” (Serena, Ava…), rồi mở lại trang. Máy tính: dùng Chrome hoặc Edge.</p>
+ <div class="lbl" style="margin-top:14px">Tốc độ đọc</div><div class="seg">${sp.map(([l,v])=>`<button data-sp="${v}" class="${Math.abs(VS.speed-v)<.01?"on":""}">${l}</button>`).join("")}</div>
+ <div class="btns" style="margin-top:16px"><button class="ghost" id="vtest">🔊 Nghe thử</button><button class="main" id="vok">Xong ✓</button></div></div>`;
+ document.body.appendChild(ov); fillVoices();
+ const test=()=>speak("Hello! The cat chased the mouse. Calendar, firefighter, butterfly.");
+ document.getElementById("vsel").onchange=e=>{ voice=voices.find(v=>v.voiceURI===e.target.value)||voice; VS.uri=voice?voice.voiceURI:""; saveVS(); test() };
+ ov.querySelectorAll("[data-sp]").forEach(b=>b.onclick=()=>{ VS.speed=+b.dataset.sp; saveVS(); ov.querySelectorAll("[data-sp]").forEach(x=>x.classList.toggle("on",x===b)); test() });
+ document.getElementById("vtest").onclick=test;
+ const close=()=>ov.remove(); document.getElementById("vok").onclick=close; ov.onclick=e=>{ if(e.target===ov) close() };
+}
 let actx=null;
 const tone = ok => { try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); const o=actx.createOscillator(),g=actx.createGain(); o.connect(g);g.connect(actx.destination); const t=actx.currentTime;
  o.frequency.setValueAtTime(ok?660:220,t); if(ok)o.frequency.setValueAtTime(880,t+.12); g.gain.setValueAtTime(.12,t); g.gain.exponentialRampToValueAtTime(.001,t+.35); o.start(t); o.stop(t+.36);}catch(e){} };
@@ -1437,7 +1476,7 @@ const findUnit = id => UNITS.find(u=>u.id===id);
 function home(){
  try{speechSynthesis.cancel()}catch(e){}
  const card = u => `<button class="unit" data-go="${u.id}"><span class="ic" style="background:${u.color}22">${u.icon}</span><span><b>${u.n}${u.secs?" · Workbook":""}</b><span class="t">${esc(u.title)}</span><span class="stars" aria-label="best score">${stars(best[u.id])}${best[u.id]!=null?` <span style="color:var(--muted)">${best[u.id]}/10</span>`:""}</span></span></button>`;
- app.innerHTML = `<header><span class="logo">📘</span><div><h1>Global English 2 – Review</h1><p class="sub">Choose a unit. Answer the questions. See your score! <span class="vn">· Chọn bài để ôn tập, chấm điểm và xem phân tích lỗi sai.</span></p></div></header>
+ app.innerHTML = `<header><span class="logo">📘</span><div style="flex:1"><h1>Global English 2 – Review</h1><p class="sub">Choose a unit. Answer the questions. See your score! <span class="vn">· Chọn bài để ôn tập, chấm điểm và xem phân tích lỗi sai.</span></p></div><button class="ghost vbtn" data-voice>🗣️ <span>Giọng đọc</span></button></header>
  <h2>Learner's Book <span class="vn">· Ôn tập theo sách Learner's Book</span></h2><div class="grid">${UNITS.map(card).join("")}</div>
  <h2>Workbook revision <span class="vn">· Ôn tập theo Workbook (giống đề Revision)</span></h2><div class="grid">${WB.map(card).join("")}</div>
  <h2>Check your progress</h2><div class="grid">${REVIEWS.map(card).join("")}
@@ -1502,7 +1541,7 @@ function question(){
  if(q.spell) body += `<div class="spellhint"><div class="hintw" aria-label="letter hint">${esc(q.hint)}</div><div class="vn" style="font-size:17px">🇻🇳 Nghĩa: <b>${esc(q.vi)}</b></div><button class="trbtn" id="hear" type="button">🔊 Hear the word</button></div>`;
  if(q.t==="fill") body += `<form class="fillrow" id="ff"><input id="fin" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type here…" aria-label="your answer"><button class="main" type="submit">Check</button></form>`;
  if(q.t==="order") body += `<div class="tiles ans" id="ans" aria-label="your answer"></div><div class="tiles" id="pool">${q.pool.map((p,k)=>`<button class="tile" data-k="${k}">${esc(p)}</button>`).join("")}</div><div class="next" style="justify-content:flex-start"><button class="main" id="chk" disabled>Check</button></div>`;
- app.innerHTML = `<div class="top"><button class="ghost" id="back" aria-label="home">🏠</button><div class="bar"><i style="width:${S.i/n*100}%"></i></div><span class="count">${S.i+1} / ${n}</span></div>
+ app.innerHTML = `<div class="top"><button class="ghost" id="back" aria-label="home">🏠</button><div class="bar"><i style="width:${S.i/n*100}%"></i></div><span class="count">${S.i+1} / ${n}</span><button class="ghost" data-voice aria-label="voice settings">🗣️</button></div>
  <div class="card"><p class="sub" style="margin:0 0 6px">${esc(u.n)} · ${esc(u.title)}${q.l?` · Lesson ${q.l}`:""}</p>${q.sec?`<p class="sech">${esc(q.sec)}${q.ins?` <span>${esc(q.ins)}</span>`:""}</p>`:""}
  <div class="qtext"><button class="say" id="rq" aria-label="read question">🔊</button><span>${esc(q.q)}</span></div>${body}
  ${["mc","tf","listen","bank"].includes(q.t)?`<div class="next" id="cfrow"><span class="vn" id="cfhint">Chọn một đáp án, rồi bấm Check.</span><button class="main" id="cf" disabled>Check ✓</button></div>`:""}<div class="fb" id="fb"></div><div class="next hidden" id="nx"><button class="main" id="nb">${S.i+1<n?"Next ➜":"See my score 🏁"}</button></div></div>`;
@@ -1578,6 +1617,7 @@ function result(){
  window.scrollTo(0,0)}
 
 window.__cur=()=>S;
+app.addEventListener("click",e=>{ if(e.target.closest("[data-voice]")) openVoice() });
 home();
 }
 
